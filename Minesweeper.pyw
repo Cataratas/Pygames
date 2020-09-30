@@ -4,7 +4,7 @@ pygame.display.init(), pygame.font.init()
 clock = pygame.time.Clock()
 screen = pygame.display.set_mode((1280, 720))
 
-black, darkgray, gray, gray2, white = (0, 0, 0), (91, 91, 91), (71, 71, 71), (138, 138, 138), (255, 255, 255)
+black, s_darkgray, darkgray, gray, gray2, white = (0, 0, 0), (51, 51, 51), (91, 91, 91), (71, 71, 71), (138, 138, 138), (255, 255, 255)
 darkred, red, lightgray = (141, 39, 45), (193, 39, 45), (153, 153, 153)
 darkblue, blue, lightblue, lighterblue = (0, 75, 188), (0, 113, 188), (41, 146, 226), (41, 171, 226)
 lightorange, orange = (247, 127, 45), (247, 107, 30)
