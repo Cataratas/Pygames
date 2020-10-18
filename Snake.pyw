@@ -1,4 +1,5 @@
-import pygame, random
+import pygame
+import random
 
 pygame.display.init(), pygame.font.init()
 clock = pygame.time.Clock()
@@ -46,8 +47,8 @@ class Snake:
             self.alive = False
         elif self.body[0] in self.body[1:]: self.alive = False
 
-    def grow(self, x, y):
-        self.body.append((self.body[-1][0] + x, self.body[-1][1] + y))
+    def grow(self):
+        self.body.append((self.body[-1][0], self.body[-1][1]))
 
     def show(self, width):
         for i in range(len(self.body)):
@@ -103,13 +104,10 @@ def Snakegame():
         if f1 == snake.body[0][0] and f2 == snake.body[0][1]:
             while True:
                 newf1, newf2 = random.randint(0, columns - 1), random.randint(0, rows - 1)
-                if newf1 != f1 and newf2 != f2: break
+                if newf1 != f1 and newf2 != f2 and (newf1, newf2) not in snake.body: break
             f1, f2 = newf1, newf2
 
-            if up: snake.grow(0, 1)
-            elif down: snake.grow(0, -1)
-            elif right: snake.grow(-1, 0)
-            elif left: snake.grow(1, 0)
+            snake.grow()
 
         snake.show(width)
         snake.deaded(rows, columns)
