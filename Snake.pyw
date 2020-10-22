@@ -56,21 +56,24 @@ class Snake:
             else: draw("./Layout/Snake Body.png", self.body[i][0] * width, self.body[i][1] * width)
 
 
-def Restartmenu(score):
+def Menu(score=0):
     while True:
         for event in pygame.event.get():
-            if event.type == pygame.QUIT: quit()
+            if event.type == pygame.QUIT: sys.exit()
 
-            elif event.type == pygame.KEYDOWN: return
+            elif event.type == pygame.KEYDOWN: return event.key
 
-        centerprint(score, 640 - 12, 360 - 80, 25, 25)
-        centerprint("Pressione qualquer tecla para reiniciar", 640 - 12, 360 - 30, 25, 25, font=font21)
+        if score == 0:
+            centerprint("Pressione qualquer tecla para iniciar", 628, 330, 25, 25, font=font21)
+        else:
+            centerprint(score - 2, 628, 280, 25, 25)
+            centerprint("Pressione qualquer tecla para reiniciar", 628, 330, 25, 25, font=font21)
 
         pygame.display.update(); clock.tick(15)
 
 
 def Snakegame():
-    rows, columns, width = 32, 58, 22
+    rows, columns, width, start = 32, 58, 22, True
 
     up, down, right, left = False, False, True, False
     snake = Snake((columns // 2, rows // 2))
@@ -113,10 +116,22 @@ def Snakegame():
         snake.deaded(rows, columns)
 
         if not snake.alive:
-            Restartmenu(len(snake.body))
+            Menu(len(snake.body))
 
             snake = Snake((columns // 2, rows // 2))
             f1, f2 = random.randint(0, columns - 1), random.randint(0, rows - 1)
+
+        if start:
+            key = Menu()
+            if (key == pygame.K_DOWN or key == pygame.K_s) and not up:
+                up, down, right, left = False, True, False, False
+            elif (key == pygame.K_UP or key == pygame.K_w) and not down:
+                up, down, right, left = True, False, False, False
+            elif (key == pygame.K_RIGHT or key == pygame.K_d) and not left:
+                up, down, right, left = False, False, True, False
+            elif (key == pygame.K_LEFT or key == pygame.K_a) and not right:
+                up, down, right, left = False, False, False, True
+            start = False
 
         pygame.display.update(); clock.tick(15)
 
