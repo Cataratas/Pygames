@@ -1,13 +1,23 @@
 import pygame
 import random
+import sys
+import os
+
 
 pygame.display.init(), pygame.font.init()
 clock = pygame.time.Clock()
 screen = pygame.display.set_mode((1276, 704))
 
+
+def resource_path(relative_path):
+    if hasattr(sys, '_MEIPASS'):
+        return os.path.join(sys._MEIPASS, relative_path)
+    return os.path.join(os.path.abspath("."), relative_path)
+
+
 black, white = (25, 25, 25), (255, 255, 255)
-font80 = pygame.font.Font('./Fonts/berlin-sans-fb-demi-bold.ttf', 80)
-font21 = pygame.font.Font('./Fonts/berlin-sans-fb-demi-bold.ttf', 21)
+font80 = pygame.font.Font(resource_path("./Fonts/berlin-sans-fb-demi-bold.ttf"), 80)
+font21 = pygame.font.Font(resource_path("./Fonts/berlin-sans-fb-demi-bold.ttf"), 21)
 
 
 def draw(path, x, y):
@@ -52,8 +62,8 @@ class Snake:
 
     def show(self, width):
         for i in range(len(self.body)):
-            if i == 0: draw("./Layout/Snake Head.png", self.body[i][0] * width, self.body[i][1] * width)
-            else: draw("./Layout/Snake Body.png", self.body[i][0] * width, self.body[i][1] * width)
+            if i == 0: draw(resource_path("./Layout/Snake Head.png"), self.body[i][0] * width, self.body[i][1] * width)
+            else: draw(resource_path("./Layout/Snake Body.png"), self.body[i][0] * width, self.body[i][1] * width)
 
 
 def Menu(score=0):
@@ -88,7 +98,7 @@ def Snakegame():
         if left: snake.move(-1, 0)
 
         for event in pygame.event.get():
-            if event.type == pygame.QUIT: quit()
+            if event.type == pygame.QUIT: sys.exit()
 
             if event.type == pygame.KEYDOWN:
                 if (event.key == pygame.K_DOWN or event.key == pygame.K_s) and not up:
@@ -102,7 +112,7 @@ def Snakegame():
 
         screen.fill(black)
 
-        draw("./Layout/Snake Food.png", f1 * width, f2 * width)
+        draw(resource_path("./Layout/Snake Food.png"), f1 * width, f2 * width)
 
         if f1 == snake.body[0][0] and f2 == snake.body[0][1]:
             while True:
