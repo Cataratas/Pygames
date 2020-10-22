@@ -1,15 +1,26 @@
-import pygame, random
+import pygame
+import random
+import sys
+import os
 
 pygame.display.init(), pygame.font.init()
 
 clock = pygame.time.Clock()
 screen = pygame.display.set_mode((1280, 720))
 
-font81 = pygame.font.Font('./Fonts/berlin-sans-fb-demi-bold.ttf', 81)
+
+def resource_path(relative_path):
+    if hasattr(sys, "_MEIPASS"):
+        return os.path.join(sys._MEIPASS, relative_path)
+    return os.path.join(os.path.abspath("."), relative_path)
+
+
+font81 = pygame.font.Font(resource_path("./Fonts/berlin-sans-fb-demi-bold.ttf"), 81)
+font21 = pygame.font.Font(resource_path("./Fonts/berlin-sans-fb-demi-bold.ttf"), 21)
 white, blue, red = (255, 255, 255), (0, 113, 188), (193, 39, 45)
 
 
-def centerprint(variable, x, y, sizeX, sizeY, color=(102, 102, 102), font=pygame.font.Font('./Fonts/berlin-sans-fb-demi-bold.ttf', 21)):
+def centerprint(variable, x, y, sizeX, sizeY, color=(102, 102, 102), font=font21):
     text = font.render(str(variable), True, color)
     rect = pygame.Rect((x, y, sizeX, sizeY))
     text_rect = text.get_rect()
@@ -27,17 +38,17 @@ class Button:
     def show(self, mouse, bool=True, color=(102, 102, 102), br=None, rand=False):
         if self.rect.x + self.rect.width > mouse[0] > self.rect.x and self.rect.y + self.rect.height > mouse[1] > self.rect.y and bool:
             if br is None and not rand:
-                draw('./Layout/{} 2.png'.format(self.color), self.rect.x, self.rect.y)
+                draw(resource_path("./Layout/{} 2.png").format(self.color), self.rect.x, self.rect.y)
             elif rand:
                 if self.c is None: self.c = random.randint(0, 1)
-                if self.c == 1: draw('./Layout/{} Blue.png'.format(self.color), self.rect.x, self.rect.y); color = blue
-                else: draw('./Layout/{} Red.png'.format(self.color), self.rect.x, self.rect.y); color = red
-            elif br: draw('./Layout/{} 2Blue.png'.format(self.color), self.rect.x, self.rect.y)
-            elif not br: draw('./Layout/{} 2Red.png'.format(self.color), self.rect.x, self.rect.y)
+                if self.c == 1: draw(resource_path("./Layout/{} Blue.png").format(self.color), self.rect.x, self.rect.y); color = blue
+                else: draw(resource_path("./Layout/{} Red.png").format(self.color), self.rect.x, self.rect.y); color = red
+            elif br: draw(resource_path("./Layout/{} 2Blue.png").format(self.color), self.rect.x, self.rect.y)
+            elif not br: draw(resource_path("./Layout/{} 2Red.png").format(self.color), self.rect.x, self.rect.y)
             centerprint(self.name, self.rect.x, self.rect.y - 1, self.rect.w, self.rect.h, color)
         else:
             self.c = None
-            draw('./Layout/{}.png'.format(self.color), self.rect.x, self.rect.y)
+            draw(resource_path("./Layout/{}.png").format(self.color), self.rect.x, self.rect.y)
             centerprint(self.name, self.rect.x, self.rect.y - 1, self.rect.w, self.rect.h, color)
 
     def click(self, event, bool=True):
@@ -45,7 +56,7 @@ class Button:
 
 
 def draw(path, x, y):
-    screen.blit(pygame.image.load(path), (x, y))
+    screen.blit(pygame.image.load(resource_path(path)), (x, y))
 
 
 def TicTacToe(oneplayer, easy=True, normal=False, hard=False):
@@ -63,8 +74,7 @@ def TicTacToe(oneplayer, easy=True, normal=False, hard=False):
     if oneplayer: active, br = "x", None
     else:
         active = random.choice(["x", "o"])
-        if active == "x": br = True
-        else: br = False
+        br = active == "x"
 
     while True:
         mouse = pygame.mouse.get_pos()
@@ -168,10 +178,10 @@ def TicTacToe(oneplayer, easy=True, normal=False, hard=False):
         screen.fill(white)
 
         for i in range(3):
-            draw("./Layout/BlackCircle.png", 400 + 38*i, 47)
-            draw("./Layout/BlackCircle.png", 778 + 38*i, 47)
-        for i in range(userscore): draw("./Layout/BlueCircle.png", 400 + 38*i, 47)
-        for i in range(compscore): draw("./Layout/RedCircle.png", 778 + 38*i, 47)
+            draw(resource_path("./Layout/BlackCircle.png"), 400 + 38*i, 47)
+            draw(resource_path("./Layout/BlackCircle.png"), 778 + 38*i, 47)
+        for i in range(userscore): draw(resource_path("./Layout/BlueCircle.png"), 400 + 38*i, 47)
+        for i in range(compscore): draw(resource_path("./Layout/RedCircle.png"), 778 + 38*i, 47)
 
         for i in range(3):
             for j in range(3):
@@ -181,8 +191,8 @@ def TicTacToe(oneplayer, easy=True, normal=False, hard=False):
         x, y = 475, 197
         for i in range(3):
             for j in range(3):
-                if board[i][j] == "x": draw("./Layout/X.png", x, y)
-                elif board[i][j] == "o": draw("./Layout/O.png", x, y)
+                if board[i][j] == "x": draw(resource_path("./Layout/X.png"), x, y)
+                elif board[i][j] == "o": draw(resource_path("./Layout/O.png"), x, y)
                 x += 129
             x = 475; y += 129
 
@@ -202,7 +212,7 @@ def Menu(mode=True):
 
         events = pygame.event.get()
         for event in events:
-            if event.type == pygame.QUIT: quit()
+            if event.type == pygame.QUIT: sys.exit()
 
             if mode:
                 if OnePlayer.click(event): mode = False; break
