@@ -9,3 +9,7 @@ To compile each game use:
 > pyinstaller --onefile --add-data="./Layout/Player.png";"./Layout/" --add-data="./Layout/Key 0.png";"./Layout/" --add-data="./Layout/Key.png";"./Layout/" --add-data="./Layout/Door 0.png";"./Layout/" --add-data="./Layout/Door.png";"./Layout/" Maze.pyw
 - Hangman:
 > pyinstaller --onefile --add-data="./Fonts/berlin-sans-fb-demi-bold.ttf";"./Fonts/" --add-data="./Fonts/myriad-pro-8.otf";"./Fonts/" --add-data="./Layout/Blanks.png";"./Layout/" --add-data="./Layout/Post.png";"./Layout/" --add-data="./Layout/Head.png";"./Layout" --add-data="./Layout/Body.png";"./Layout" --add-data="./Layout/Arm.png";"./Layout" --add-data="./Layout/Leg.png";"./Layout" --add-data="./Layout/Face.png";"./Layout" --add-data="./Layout/Gray.png";"./Layout" --add-data="./Layout/Gray 2.png";"./Layout" Hangman.pyw
+- Memory:
+> pyinstaller --onefile --add-data="./Fonts/seguiemj.ttf";"./Fonts/" Memory.pyw
+- Minesweeper:
+> pyinstaller --onefile --add-data="./Fonts/seguisym.ttf";"./Fonts/" --add-data="./Fonts/berlin-sans-fb-demi-bold.ttf";"./Fonts/" Minesweeper.pyw
