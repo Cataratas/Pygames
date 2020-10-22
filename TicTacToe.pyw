@@ -15,6 +15,8 @@ def resource_path(relative_path):
     return os.path.join(os.path.abspath("."), relative_path)
 
 
+pygame.display.set_caption("TicTacToe")
+
 font81 = pygame.font.Font(resource_path("./Fonts/berlin-sans-fb-demi-bold.ttf"), 81)
 font21 = pygame.font.Font(resource_path("./Fonts/berlin-sans-fb-demi-bold.ttf"), 21)
 white, blue, red = (255, 255, 255), (0, 113, 188), (193, 39, 45)

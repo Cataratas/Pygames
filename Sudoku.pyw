@@ -16,6 +16,8 @@ def resource_path(relative_path):
     return os.path.join(os.path.abspath("."), relative_path)
 
 
+pygame.display.set_caption("Sudoku")
+
 fontUI81 = pygame.font.Font(resource_path("./Fonts/seguisym.ttf"), 81)
 font21 = pygame.font.Font(resource_path("./Fonts/seguisym.ttf"), 21)
 white, black = (255, 255, 255), (0, 0, 0)

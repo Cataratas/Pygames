@@ -15,6 +15,8 @@ def resource_path(relative_path):
     return os.path.join(os.path.abspath("."), relative_path)
 
 
+pygame.display.set_caption("Hangman")
+
 font81 = pygame.font.Font(resource_path("./Fonts/berlin-sans-fb-demi-bold.ttf"), 81)
 font21 = pygame.font.Font(resource_path("./Fonts/myriad-pro-8.otf"), 21)
 fontABC = pygame.font.Font(resource_path("./Fonts/myriad-pro-8.otf"), 40)

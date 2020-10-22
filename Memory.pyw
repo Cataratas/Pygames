@@ -17,6 +17,8 @@ def resource_path(relative_path):
 	return os.path.join(os.path.abspath("."), relative_path)
 
 
+pygame.display.set_caption("Memory")
+
 font50 = pygame.freetype.Font(resource_path("./Fonts/seguiemj.ttf"), 50)
 white = (255, 255, 255)
 

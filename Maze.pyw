@@ -17,6 +17,9 @@ def resource_path(relative_path):
     return os.path.join(os.path.abspath("."), relative_path)
 
 
+pygame.display.set_caption("Maze")
+
+
 def draw(path, x, y, mirror=False):
     if mirror:
         screen.blit(pygame.transform.flip(pygame.image.load(resource_path(path)), True, False), (x, y))
