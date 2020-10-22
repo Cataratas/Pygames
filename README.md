@@ -13,3 +13,7 @@ To compile each game use:
 > pyinstaller --onefile --add-data="./Fonts/seguiemj.ttf";"./Fonts/" Memory.pyw
 - Minesweeper:
 > pyinstaller --onefile --add-data="./Fonts/seguisym.ttf";"./Fonts/" --add-data="./Fonts/berlin-sans-fb-demi-bold.ttf";"./Fonts/" Minesweeper.pyw
+- Pong:
+> pyinstaller --onefile --add-data="./Fonts/BIG JOHN.otf";"./Fonts/" Pong.pyw
+- Sudoku:
+> pyinstaller --onefile --add-data="./Fonts/seguisym.ttf";"./Fonts/" Sudoku.pyw
