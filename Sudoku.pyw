@@ -7,7 +7,7 @@ import os
 pygame.display.init(), pygame.font.init()
 
 clock = pygame.time.Clock()
-screen = pygame.display.set_mode((1280, 720))
+screen = pygame.display.set_mode((640, 620))
 
 
 def resource_path(relative_path):
@@ -194,12 +194,12 @@ def Sudoku(difficulty):
     def ShowSudoku(grid):
         for row in range(9):
             for col in range(9):
-                rect = pygame.Rect(((width * 11.5) + row * width, (width * 3) + col * width, width + 1, width + 1))
+                rect = pygame.Rect(((width * 3.5) + row * width, (width * 3) + col * width, width + 1, width + 1))
                 pygame.draw.rect(screen, (112, 112, 112), rect, 1)
-                if grid[row][col] != 0: centerprint(grid[row][col], (width * 11.5) + row * width, (width * 3) + col * width, width, width)
+                if grid[row][col] != 0: centerprint(grid[row][col], (width * 3.5) + row * width, (width * 3) + col * width, width, width)
         for i in range(4):
-            pygame.draw.line(screen, black, ((width * 11.5), (width * 3) + 120 * i), ((width * 20.5), (width * 3) + 120 * i), 3)
-            pygame.draw.line(screen, black, ((width * 11.5) + 120 * i, (width * 3)), ((width * 11.5) + 120 * i, width * 12), 3)
+            pygame.draw.line(screen, black, ((width * 3.5), (width * 3) + 120 * i), ((width * 12.5), (width * 3) + 120 * i), 3)
+            pygame.draw.line(screen, black, ((width * 3.5) + 120 * i, (width * 3)), ((width * 3.5) + 120 * i, width * 12), 3)
 
     Grid = []
     for i in range(9): Grid.append([0, 0, 0, 0, 0, 0, 0, 0, 0])
@@ -222,14 +222,15 @@ def Sudoku(difficulty):
         for c in range(0, 9):
             m_grid[r].append(Grid[r][c])
 
-    Delete, Reverse = ButtonBox("✖", 330, 578, 47, 47), ButtonBox("↩", 902, 578, 47, 47)
-    One, Two, Three = ButtonBox(1, 387, 578, 47, 47), ButtonBox(2, 444, 578, 47, 47), ButtonBox(3, 501, 578, 47, 47)
-    Four, Five, Six = ButtonBox(4, 558, 578, 47, 47), ButtonBox(5, 615, 578, 47, 47), ButtonBox(6, 673, 578, 47, 47)
-    Seven, Eight, Nine = ButtonBox(7, 730, 578, 47, 47), ButtonBox(8, 787, 578, 47, 47), ButtonBox(9, 845, 578, 47, 47)
+    Delete, Reverse = ButtonBox("✖", 10, 538, 47, 47), ButtonBox("↩", 582, 538, 47, 47)
+    One, Two, Three = ButtonBox(1, 67, 538, 47, 47), ButtonBox(2, 124, 538, 47, 47), ButtonBox(3, 181, 538, 47, 47)
+    Four, Five, Six = ButtonBox(4, 238, 538, 47, 47), ButtonBox(5, 295, 538, 47, 47), ButtonBox(6, 353, 538, 47, 47)
+    Seven, Eight, Nine = ButtonBox(7, 410, 538, 47, 47), ButtonBox(8, 467, 538, 47, 47), ButtonBox(9, 525, 538, 47, 47)
+    Buttons = [One, Two, Three, Four, Five, Six, Seven, Eight, Nine]
 
     while True:
         mouse = pygame.mouse.get_pos()
-        mx, my = (mouse[0] - 20) // width - 11, mouse[1] // width - 3
+        mx, my = (mouse[0] - 20) // width - 3, mouse[1] // width - 3
 
         win = True
         for i in range(9):
@@ -241,16 +242,11 @@ def Sudoku(difficulty):
         for event in events:
             if event.type == pygame.QUIT: Menu()
 
+            for i in range(len(Buttons)):
+                if Buttons[i].click(event): active = i + 1
+
             if Delete.click(event): active = "✖"
-            elif One.click(event): active = 1
-            elif Two.click(event): active = 2
-            elif Three.click(event): active = 3
-            elif Four.click(event): active = 4
-            elif Five.click(event): active = 5
-            elif Six.click(event): active = 6
-            elif Seven.click(event): active = 7
-            elif Eight.click(event): active = 8
-            elif Nine.click(event): active = 9
+
             elif Reverse.click(event):
                 try:
                     revert = actions[-1]
@@ -274,15 +270,15 @@ def Sudoku(difficulty):
         for i in range(9):
             for j in range(9):
                 if active == "✖" and Grid[i][j] != m_grid[i][j]:
-                    pygame.draw.rect(screen, (253, 171, 159), [(width * 11.5) + i * width, (width * 3) + j * width, width, width])
+                    pygame.draw.rect(screen, (253, 171, 159), [(width * 3.5) + i * width, (width * 3) + j * width, width, width])
                 elif Grid[i][j] == active:
-                    pygame.draw.rect(screen, (210, 210, 210), [(width * 11.5) + i * width, (width * 3) + j * width, width, width])
+                    pygame.draw.rect(screen, (210, 210, 210), [(width * 3.5) + i * width, (width * 3) + j * width, width, width])
 
         if 0 <= mx <= 8 and 0 <= my <= 8 and Grid[mx][my] == 0 and active is not None and active != "✖":
-            centerprint(active, (width * 11.5) + mx * width, (width * 3) + my * width, width + 1, width + 1, (125, 125, 125))
+            centerprint(active, (width * 3.5) + mx * width, (width * 3) + my * width, width + 1, width + 1, (125, 125, 125))
         if active == "✖":
             if 0 <= mx <= 8 and 0 <= my <= 8 and m_grid[mx][my] == 0 and Grid[mx][my] != 0:
-                pygame.draw.rect(screen, (253, 112, 104), [(width * 11.5) + mx * width, (width * 3) + my * width, width, width])
+                pygame.draw.rect(screen, (253, 112, 104), [(width * 3.5) + mx * width, (width * 3) + my * width, width, width])
 
         ShowSudoku(Grid)
 
@@ -291,7 +287,7 @@ def Sudoku(difficulty):
             minutes += 1
             startTime = time.time()
             pygame.time.delay(50)
-        centerprint("{}:{}".format("{:02d}".format(minutes), "{:02d}".format(seconds)), 575, 40, 130, 40, (96, 56, 19))
+        centerprint("{}:{}".format("{:02d}".format(minutes), "{:02d}".format(seconds)), 257, 40, 130, 40, (96, 56, 19))
 
         Delete.show(mouse, active), Reverse.show(mouse, active)
         One.show(mouse, active), Two.show(mouse, active), Three.show(mouse, active)
@@ -302,9 +298,9 @@ def Sudoku(difficulty):
 
 
 def Menu():
-    Easy = ButtonBox("Fácil", 370, 400, 160, 40)
-    Medium = ButtonBox("Médio", 560, 400, 160, 40)
-    Hard = ButtonBox("Difícil", 750, 400, 160, 40)
+    Easy = ButtonBox("Fácil", 50, 400, 160, 40)
+    Medium = ButtonBox("Médio", 240, 400, 160, 40)
+    Hard = ButtonBox("Difícil", 430, 400, 160, 40)
 
     while True:
         mouse = pygame.mouse.get_pos()
@@ -318,7 +314,7 @@ def Menu():
             if Hard.click(event): Sudoku(5)
 
         screen.fill(white)
-        centerprint("Sudoku", 340, 100, 600, 100, font=fontUI81)
+        centerprint("Sudoku", 20, 100, 600, 100, font=fontUI81)
 
         Easy.show(mouse), Medium.show(mouse), Hard.show(mouse)
 
