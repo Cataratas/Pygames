@@ -6,7 +6,7 @@ import os
 pygame.display.init(), pygame.font.init()
 
 clock = pygame.time.Clock()
-screen = pygame.display.set_mode((1280, 720))
+screen = pygame.display.set_mode((640, 620))
 
 
 def resource_path(relative_path):
@@ -65,9 +65,9 @@ def TicTacToe(oneplayer, easy=True, normal=False, hard=False):
     board = [[0 for i in range(3)] for j in range(3)]
     Buttons = [[0 for i in range(3)] for j in range(3)]
 
-    x, y = 451, 43
+    x, y = 128, 43
     for i in range(3):
-        x = 451; y += 129
+        x = 128; y += 129
         for j in range(3):
             Buttons[i][j] = Button(" ", "Tile", x, y)
             x += 129
@@ -180,34 +180,34 @@ def TicTacToe(oneplayer, easy=True, normal=False, hard=False):
         screen.fill(white)
 
         for i in range(3):
-            draw(resource_path("./Layout/BlackCircle.png"), 400 + 38*i, 47)
-            draw(resource_path("./Layout/BlackCircle.png"), 778 + 38*i, 47)
-        for i in range(userscore): draw(resource_path("./Layout/BlueCircle.png"), 400 + 38*i, 47)
-        for i in range(compscore): draw(resource_path("./Layout/RedCircle.png"), 778 + 38*i, 47)
+            draw(resource_path("./Layout/BlackCircle.png"), 100 + 38*i, 47)
+            draw(resource_path("./Layout/BlackCircle.png"), 440 + 38*i, 47)
+        for i in range(userscore): draw(resource_path("./Layout/BlueCircle.png"), 100 + 38*i, 47)
+        for i in range(compscore): draw(resource_path("./Layout/RedCircle.png"), 440 + 38*i, 47)
 
         for i in range(3):
             for j in range(3):
                 Buttons[i][j].show(mouse, board[i][j] == 0, br=br)
 
         # Display Symbols
-        x, y = 475, 197
+        x, y = 150, 197
         for i in range(3):
             for j in range(3):
                 if board[i][j] == "x": draw(resource_path("./Layout/X.png"), x, y)
                 elif board[i][j] == "o": draw(resource_path("./Layout/O.png"), x, y)
                 x += 129
-            x = 475; y += 129
+            x = 150; y += 129
 
         pygame.display.update(), clock.tick(25)
 
 
 def Menu(mode=True):
-    OnePlayer = Button("Singleplayer", "Long Gray", 520, 390, (240, 40))
-    TwoPlayer = Button("Multiplayer", "Long Gray", 520, 445, (240, 40))
-    Easy = Button("Fácil", "Gray", 325, 410, (200, 40))
-    Medium = Button("Normal", "Gray", 540, 410, (200, 40))
-    Hard = Button("Difícil", "Gray", 755, 410, (200, 40))
-    Return = Button("Voltar", "Gray", 25, 655, (200, 40))
+    OnePlayer = Button("Singleplayer", "Long Gray", 200, 390, (240, 40))
+    TwoPlayer = Button("Multiplayer", "Long Gray", 200, 445, (240, 40))
+    Easy = Button("Fácil", "Gray", 220, 335, (200, 40))
+    Medium = Button("Normal", "Gray", 220, 390, (200, 40))
+    Hard = Button("Difícil", "Gray", 220, 445, (200, 40))
+    Return = Button("Voltar", "Gray", 25, 555, (200, 40))
 
     while True:
         mouse = pygame.mouse.get_pos()
@@ -227,7 +227,7 @@ def Menu(mode=True):
 
         screen.fill(white)
 
-        centerprint("TicTacToe", 340, 100, 600, 100, font=font81)
+        centerprint("TicTacToe", 220, 100, 200, 20, font=font81)
 
         if mode: OnePlayer.show(mouse, rand=True), TwoPlayer.show(mouse, rand=True)
         if not mode: Easy.show(mouse, rand=True), Medium.show(mouse, rand=True), Hard.show(mouse, rand=True), Return.show(mouse, rand=True)
