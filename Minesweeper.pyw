@@ -201,17 +201,15 @@ def Minesweeper(bombs):
 						search(mx, my)
 						if grid[my][mx].bomb:  # Checks Defeat
 							lose = True
-				if event.button == 3 and 0 <= mx < columns and 0 <= my < rows:  # Flag clicked tile
+				elif event.button == 2 and 0 <= mx < columns and 0 <= my < rows:
 					if not grid[my][mx].visible:
-						if grid[my][mx].flag:
-							grid[my][mx].flag = False
-							grid[my][mx].doubt = True
-							flags += 1
-						else:
-							if flags > 0 and not grid[my][mx].doubt:
-								grid[my][mx].flag = True
-								flags -= 1
-							else: grid[my][mx].doubt = False
+						grid[my][mx].doubt = not grid[my][mx].doubt
+						grid[my][mx].flag = False
+
+				elif event.button == 3 and 0 <= mx < columns and 0 <= my < rows:  # Flag clicked tile
+					if not grid[my][mx].visible:
+						grid[my][mx].flag = not grid[my][mx].flag
+						grid[my][mx].doubt = False
 
 		pygame.display.update(); clock.tick(30)
 
