@@ -52,7 +52,8 @@ class Button:
             centerprint(self.name, self.rect.x, self.rect.y, self.rect.w, self.rect.h, color2)
 
     def click(self, event, bool=True):
-        if event.type == pygame.MOUSEBUTTONUP and event.button == 1 and bool: return self.rect.collidepoint(event.pos)
+        if event.type == pygame.MOUSEBUTTONUP and event.button == 1 and bool:
+            return self.rect.collidepoint(event.pos)
 
 
 def draw(path, x, y, mirror=False):

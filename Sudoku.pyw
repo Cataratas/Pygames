@@ -24,7 +24,7 @@ white, black = (255, 255, 255), (0, 0, 0)
 numberList = [1, 2, 3, 4, 5, 6, 7, 8, 9]
 
 
-def centerprint(variable, x, y, sizeX, sizeY, color=(51, 51, 51), font=font21):
+def centerPrint(variable, x, y, sizeX, sizeY, color=(51, 51, 51), font=font21):
     text = font.render(str(variable), True, color)
     rect = pygame.Rect((x, y, sizeX, sizeY))
     text_rect = text.get_rect()
@@ -48,16 +48,17 @@ class ButtonBox:
             pressed = False
         if self.x + self.w > mouse[0] > self.x and self.y + self.h > mouse[1] > self.y and not pressed:
             pygame.draw.rect(screen, (117, 76, 36), [self.x, self.y, self.w, self.h])
-            centerprint(self.number, self.x, self.y, self.w, self.h, white)
+            centerPrint(self.number, self.x, self.y, self.w, self.h, white)
         elif pressed:
             pygame.draw.rect(screen, (96, 56, 19), [self.x, self.y, self.w, self.h])
-            centerprint(self.number, self.x, self.y, self.w, self.h, white)
+            centerPrint(self.number, self.x, self.y, self.w, self.h, white)
         else:
             pygame.draw.rect(screen, (96, 56, 19), pygame.Rect((self.x, self.y, self.w, self.h)), 1)
-            centerprint(self.number, self.x, self.y, self.w, self.h, (96, 56, 19))
+            centerPrint(self.number, self.x, self.y, self.w, self.h, (96, 56, 19))
 
     def click(self, event):
-        if event.type == pygame.MOUSEBUTTONUP and event.button == 1: return self.rect.collidepoint(event.pos)
+        if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
+            return self.rect.collidepoint(event.pos)
 
 
 def Sudoku(difficulty):
@@ -196,7 +197,7 @@ def Sudoku(difficulty):
             for col in range(9):
                 rect = pygame.Rect(((width * 3.5) + row * width, (width * 3) + col * width, width + 1, width + 1))
                 pygame.draw.rect(screen, (112, 112, 112), rect, 1)
-                if grid[row][col] != 0: centerprint(grid[row][col], (width * 3.5) + row * width, (width * 3) + col * width, width, width)
+                if grid[row][col] != 0: centerPrint(grid[row][col], (width * 3.5) + row * width, (width * 3) + col * width, width, width)
         for i in range(4):
             pygame.draw.line(screen, black, ((width * 3.5), (width * 3) + 120 * i), ((width * 12.5), (width * 3) + 120 * i), 3)
             pygame.draw.line(screen, black, ((width * 3.5) + 120 * i, (width * 3)), ((width * 3.5) + 120 * i, width * 12), 3)
@@ -275,7 +276,7 @@ def Sudoku(difficulty):
                     pygame.draw.rect(screen, (210, 210, 210), [(width * 3.5) + i * width, (width * 3) + j * width, width, width])
 
         if 0 <= mx <= 8 and 0 <= my <= 8 and Grid[mx][my] == 0 and active is not None and active != "✖":
-            centerprint(active, (width * 3.5) + mx * width, (width * 3) + my * width, width + 1, width + 1, (125, 125, 125))
+            centerPrint(active, (width * 3.5) + mx * width, (width * 3) + my * width, width + 1, width + 1, (125, 125, 125))
         if active == "✖":
             if 0 <= mx <= 8 and 0 <= my <= 8 and m_grid[mx][my] == 0 and Grid[mx][my] != 0:
                 pygame.draw.rect(screen, (253, 112, 104), [(width * 3.5) + mx * width, (width * 3) + my * width, width, width])
@@ -287,7 +288,7 @@ def Sudoku(difficulty):
             minutes += 1
             startTime = time.time()
             pygame.time.delay(50)
-        centerprint("{}:{}".format("{:02d}".format(minutes), "{:02d}".format(seconds)), 257, 40, 130, 40, (96, 56, 19))
+        centerPrint("{}:{}".format("{:02d}".format(minutes), "{:02d}".format(seconds)), 257, 40, 130, 40, (96, 56, 19))
 
         Delete.show(mouse, active), Reverse.show(mouse, active)
         One.show(mouse, active), Two.show(mouse, active), Three.show(mouse, active)
@@ -314,7 +315,7 @@ def Menu():
             if Hard.click(event): Sudoku(5)
 
         screen.fill(white)
-        centerprint("Sudoku", 20, 100, 600, 100, font=fontUI81)
+        centerPrint("Sudoku", 20, 100, 600, 100, font=fontUI81)
 
         Easy.show(mouse), Medium.show(mouse), Hard.show(mouse)
 

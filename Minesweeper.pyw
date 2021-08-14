@@ -7,6 +7,7 @@ import os
 pygame.display.init(), pygame.font.init()
 clock = pygame.time.Clock()
 screen = pygame.display.set_mode((1280, 720))
+pygame.display.set_caption("Minesweeper")
 
 black, s_darkgray, darkgray, gray, gray2, white = (0, 0, 0), (51, 51, 51), (91, 91, 91), (71, 71, 71), (138, 138, 138), (255, 255, 255)
 darkred, red, lightgray = (141, 39, 45), (193, 39, 45), (153, 153, 153)
@@ -20,8 +21,6 @@ def resource_path(relative_path):
 		return os.path.join(sys._MEIPASS, relative_path)
 	return os.path.join(os.path.abspath("."), relative_path)
 
-
-pygame.display.set_caption("Minesweeper")
 
 fontUI81 = pygame.font.Font(resource_path("./Fonts/seguisym.ttf"), 81)
 font21 = pygame.font.Font(resource_path("./Fonts/berlin-sans-fb-demi-bold.ttf"), 21)
@@ -54,7 +53,8 @@ class ButtonBox:
 			centerprint(self.number, self.x, self.y, self.w, self.h, darkgray)
 				
 	def click(self, event):
-		if event.type == pygame.MOUSEBUTTONUP and event.button == 1: return self.rect.collidepoint(event.pos)
+		if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
+			return self.rect.collidepoint(event.pos)
 
 
 def draw(path, x, y):
@@ -224,11 +224,15 @@ def Menu():
 		
 		events = pygame.event.get()
 		for event in events:
-			if event.type == pygame.QUIT: sys.exit()
+			if event.type == pygame.QUIT:
+				sys.exit()
 			
-			if Easy.click(event): Minesweeper(45)
-			if Medium.click(event): Minesweeper(65)
-			if Hard.click(event): Minesweeper(95)
+			if Easy.click(event):
+				Minesweeper(45)
+			if Medium.click(event):
+				Minesweeper(65)
+			if Hard.click(event):
+				Minesweeper(95)
 						
 		screen.fill(white)
 		centerprint("Minesweeper", 340, 100, 600, 100, font=fontUI81)
@@ -238,4 +242,5 @@ def Menu():
 		pygame.display.update(); clock.tick(15)
 
 
-if __name__ == "__main__": Menu()
+if __name__ == "__main__":
+	Menu()
