@@ -87,11 +87,9 @@ class Snake:
             return True
 
     def show(self, width):
-        for i in range(len(self.body)):
-            if i == 0:
-                draw(resource_path("./Layout/Snake Head.png"), self.body[i][0] * width, self.body[i][1] * width)
-            else:
-                draw(resource_path("./Layout/Snake Body.png"), self.body[i][0] * width, self.body[i][1] * width)
+        draw(resource_path("./Layout/Snake Head.png"), self.body[0][0] * width, self.body[0][1] * width)
+        for i in range(1, len(self.body)):
+            draw(resource_path("./Layout/Snake Body.png"), self.body[i][0] * width, self.body[i][1] * width)
 
 
 def Menu(score=0):
