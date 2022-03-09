@@ -153,7 +153,7 @@ def SnakeGame():
             food = newFood
 
         if not snake.alive:
-            Menu(len(snake.body))
+            direction = Menu(len(snake.body))
 
             snake = Snake((columns // 2, rows // 2))
             food = random.randint(0, columns - 1), random.randint(0, rows - 1)
