@@ -23,26 +23,16 @@ class Direction(Enum):
 
 class Snake:
     def __init__(self, startPos):
-        self.body = []
-        self.body.append(startPos)
-        self.body.append((startPos[0] + 1, startPos[1]))
+        self.body = [startPos, (startPos[0] + 1, startPos[1])]
         self.alive = True
 
     def move(self, direction):
-        x, y = direction.value
-        pos = 0
+        prev = self.body[0]
+        self.body[0] = tuple(map(sum, zip(self.body[0], direction.value)))
 
-        for i in range(len(self.body)):
-            if i == 0:
-                xx, yy = self.body[i]
-                pos = xx, yy
-                xx += x
-                yy += y
-                self.body[i] = xx, yy
-            else:
-                xx, yy = pos
-                pos = self.body[i]
-                self.body[i] = xx, yy
+        for i in range(1, len(self.body)):
+            pos = prev
+            prev, self.body[i] = self.body[i], pos
 
     def deaded(self, rows, columns):
         if self.body[0][0] > columns - 1 or self.body[0][1] > rows - 1 or self.body[0][0] < 0 or self.body[0][1] < 0:
@@ -51,7 +41,7 @@ class Snake:
             self.alive = False
 
     def eat(self, food):
-        if food == (self.body[0][0], self.body[0][1]):
+        if food == self.body[0]:
             self.body.append((self.body[-1][0], self.body[-1][1]))
             return True
 
