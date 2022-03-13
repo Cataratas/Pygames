@@ -1,14 +1,8 @@
 import pygame
 import random
 import sys
-import os
-from enum import Enum, auto
-
-
-def resource_path(relative_path):
-    if hasattr(sys, '_MEIPASS'):
-        return os.path.join(sys._MEIPASS, relative_path)
-    return os.path.join(os.path.abspath("."), relative_path)
+from enum import Enum
+from Functions import BLACK2, GRAY, resource_path, draw, centerPrint
 
 
 pygame.display.init()
@@ -16,29 +10,15 @@ pygame.font.init()
 clock = pygame.time.Clock()
 screen = pygame.display.set_mode((1276, 704))
 pygame.display.set_caption("Snake")
-
-black, white = (25, 25, 25), (255, 255, 255)
 font80 = pygame.font.Font(resource_path("./Fonts/berlin-sans-fb-demi-bold.ttf"), 80)
 font21 = pygame.font.Font(resource_path("./Fonts/berlin-sans-fb-demi-bold.ttf"), 21)
 
 
-def draw(path, x, y):
-    screen.blit(pygame.transform.flip(pygame.image.load(path).convert_alpha(), False, False), (x, y))
-
-
-def centerPrint(variable, x, y, sizeX, sizeY, color=(65, 65, 65), font=font80):
-    text = font.render(str(variable), True, color)
-    rect = pygame.Rect((x, y, sizeX, sizeY))
-    text_rect = text.get_rect()
-    text_rect.center = rect.center
-    screen.blit(text, text_rect)
-
-
 class Direction(Enum):
-    UP = auto()
-    DOWN = auto()
-    RIGHT = auto()
-    LEFT = auto()
+    UP = 0, -1
+    DOWN = 0, 1
+    RIGHT = 1, 0
+    LEFT = -1, 0
 
 
 class Snake:
@@ -48,19 +28,8 @@ class Snake:
         self.body.append((startPos[0] + 1, startPos[1]))
         self.alive = True
 
-    @staticmethod
-    def __direction(d):
-        if d == Direction.UP:
-            return 0, -1
-        elif d == Direction.DOWN:
-            return 0, 1
-        elif d == Direction.RIGHT:
-            return 1, 0
-        elif d == Direction.LEFT:
-            return -1, 0
-
-    def move(self, Direction):
-        x, y = self.__direction(Direction)
+    def move(self, direction):
+        x, y = direction.value
         pos = 0
 
         for i in range(len(self.body)):
@@ -87,9 +56,9 @@ class Snake:
             return True
 
     def show(self, width):
-        draw(resource_path("./Layout/Snake Head.png"), self.body[0][0] * width, self.body[0][1] * width)
+        draw(screen, resource_path("./Layout/Snake Head.png"), self.body[0][0] * width, self.body[0][1] * width)
         for i in range(1, len(self.body)):
-            draw(resource_path("./Layout/Snake Body.png"), self.body[i][0] * width, self.body[i][1] * width)
+            draw(screen, resource_path("./Layout/Snake Body.png"), self.body[i][0] * width, self.body[i][1] * width)
 
 
 def Menu(score=0):
@@ -109,17 +78,17 @@ def Menu(score=0):
                     return Direction.LEFT
 
         if score == 0:
-            centerPrint("Pressione qualquer tecla para iniciar", 628, 330, 25, 25, font=font21)
+            centerPrint(screen, "Pressione qualquer tecla para iniciar", 628, 330, 25, 25, GRAY, font21)
         else:
-            centerPrint(score - 2, 628, 280, 25, 25)
-            centerPrint("Pressione qualquer tecla para reiniciar", 628, 330, 25, 25, font=font21)
+            centerPrint(screen, score - 2, 628, 280, 25, 25, GRAY, font80)
+            centerPrint(screen, "Pressione qualquer tecla para reiniciar", 628, 330, 25, 25, GRAY, font21)
 
         pygame.display.update()
         clock.tick(15)
 
 
 def SnakeGame():
-    rows, columns, width, start, direction = 32, 58, 22, True, Direction.RIGHT
+    rows, columns, width, start, direction, keyboard = 32, 58, 22, True, Direction.RIGHT, True
 
     snake = Snake((columns // 2, rows // 2))
     food = random.randint(0, columns-1), random.randint(0, rows-1)
@@ -129,7 +98,7 @@ def SnakeGame():
             if event.type == pygame.QUIT:
                 sys.exit()
 
-            if event.type == pygame.KEYDOWN:
+            if event.type == pygame.KEYDOWN and keyboard:
                 if (event.key == pygame.K_DOWN or event.key == pygame.K_s) and direction != Direction.UP:
                     direction = Direction.DOWN
                 elif (event.key == pygame.K_UP or event.key == pygame.K_w) and direction != Direction.DOWN:
@@ -138,9 +107,10 @@ def SnakeGame():
                     direction = Direction.RIGHT
                 elif (event.key == pygame.K_LEFT or event.key == pygame.K_a) and direction != Direction.RIGHT:
                     direction = Direction.LEFT
+                keyboard = False
 
-        screen.fill(black)
-        draw(resource_path("./Layout/Snake Food.png"), food[0] * width, food[1] * width)
+        screen.fill(BLACK2)
+        draw(screen, resource_path("./Layout/Snake Food.png"), food[0] * width, food[1] * width)
 
         snake.show(width)
         snake.deaded(rows, columns)
@@ -163,6 +133,7 @@ def SnakeGame():
             start = False
 
         snake.move(direction)
+        keyboard = True
 
         pygame.display.update()
         clock.tick(15)
