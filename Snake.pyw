@@ -1,24 +1,6 @@
-import pygame
+import pygame as pg
 import random
-import sys
-from enum import Enum
-from Functions import BLACK2, GRAY, resource_path, draw, centerPrint
-
-
-pygame.display.init()
-pygame.font.init()
-clock = pygame.time.Clock()
-screen = pygame.display.set_mode((1276, 704))
-pygame.display.set_caption("Snake")
-font80 = pygame.font.Font(resource_path("./Fonts/berlin-sans-fb-demi-bold.ttf"), 80)
-font21 = pygame.font.Font(resource_path("./Fonts/berlin-sans-fb-demi-bold.ttf"), 21)
-
-
-class Direction(Enum):
-    UP = 0, -1
-    DOWN = 0, 1
-    RIGHT = 1, 0
-    LEFT = -1, 0
+from Things import Colors, Fonts, draw, centerPrint
 
 
 class Snake:
@@ -26,8 +8,7 @@ class Snake:
         self.body = [startPos, (startPos[0] + 1, startPos[1])]
 
     def move(self, direction):
-        prev, self.body[0] = self.body[0], tuple(map(sum, zip(self.body[0], direction.value)))
-
+        prev, self.body[0] = self.body[0], tuple(map(sum, zip(self.body[0], direction)))
         for i in range(1, len(self.body)):
             pos = prev
             prev, self.body[i] = self.body[i], pos
@@ -35,59 +16,44 @@ class Snake:
     def isAlive(self, rows, columns):
         return all(0 <= i < j for i, j in zip(self.body[0], (columns, rows))) and self.body[0] not in self.body[1:]
 
-    def eat(self, food):
-        return self.body.append(self.body[-1]) if food == self.body[0] else ...
-
-    def show(self, width):
-        draw(screen, resource_path("./Layout/Snake Head.png"), self.body[0][0] * width, self.body[0][1] * width)
-        for x in self.body[1:]:
-            draw(screen, resource_path("./Layout/Snake Body.png"), x[0] * width, x[1] * width)
-
 
 def SnakeGame():
-    rows, columns, width, start, direction, keyboard, alive = 32, 58, 22, True, None, True, True
-
-    snake = Snake((columns // 2, rows // 2))
-    food = random.randint(0, columns-1), random.randint(0, rows-1)
+    rows, columns, w, start, direction, keyboard, alive = 32, 58, 22, True, (0, 0), True, True
+    snake, food = Snake((columns // 2, rows // 2)), (random.randint(0, columns - 1), random.randint(0, rows - 1))
 
     while True:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                sys.exit()
+        for event in pg.event.get():
+            if event.type == pg.QUIT:
+                return
 
-            if event.type == pygame.KEYDOWN and keyboard:
-                if event.key in [pygame.K_DOWN, pygame.K_s] and direction != Direction.UP:
-                    direction = Direction.DOWN
-                elif event.key in [pygame.K_UP, pygame.K_w] and direction != Direction.DOWN:
-                    direction = Direction.UP
-                elif event.key in [pygame.K_RIGHT, pygame.K_d] and direction != Direction.LEFT:
-                    direction = Direction.RIGHT
-                elif event.key in [pygame.K_LEFT, pygame.K_a] and direction != Direction.RIGHT:
-                    direction = Direction.LEFT
-
+            if event.type == pg.KEYDOWN and event.key in [pg.K_DOWN, pg.K_s, pg.K_UP, pg.K_w, pg.K_RIGHT, pg.K_d, pg.K_LEFT, pg.K_a] and keyboard:
+                for key, dir in [((pg.K_DOWN, pg.K_s), (0, 1)), ((pg.K_UP, pg.K_w), (0, -1)), ((pg.K_RIGHT, pg.K_d), (1, 0)), ((pg.K_LEFT, pg.K_a), (-1, 0))]:
+                    if event.key in key and (direction != tuple(x * -1 for x in dir) or not alive):
+                        direction = dir
                 if not alive:
                     snake = Snake((columns // 2, rows // 2))
                 keyboard, start = False, False
 
-        screen.fill(BLACK2)
-        draw(screen, resource_path("./Layout/Snake Food.png"), food[0] * width, food[1] * width)
-        snake.show(width)
+        screen.fill(Colors["black2"])
+        draw(screen, "./Layout/Snake Food.png", (food[0] * w, food[1] * w))
+        [draw(screen, f"./Layout/Snake {'Body' if i != 0 else 'Head'}.png", (body[0] * w, body[1] * w)) for i, body in enumerate(snake.body)]
 
-        if snake.eat(food):
+        if food == snake.body[0]:
+            snake.body.append(snake.body[-1])
             while food in snake.body and len(snake.body) != rows * columns:
-                food = random.randint(0, columns-1), random.randint(0, rows-1)
+                food = random.randint(0, columns - 1), random.randint(0, rows - 1)
 
         if not (alive := snake.isAlive(rows, columns)) or start:
-            centerPrint(screen, "Pressione qualquer tecla para iniciar", 628, 330, 25, 25, GRAY, font21)
+            centerPrint(screen, "Pressione qualquer tecla para iniciar", (628, 330), (25, 25), Colors["gray"])
             if not alive:
-                centerPrint(screen, len(snake.body[2:]), 628, 280, 25, 25, GRAY, font80)
-                direction = None
+                centerPrint(screen, len(snake.body[2:]), (628, 280), (25, 25), Colors["gray"], Fonts["demiBold80"])
         else:
             snake.move(direction)
 
-        keyboard = True
-        pygame.display.update()
-        clock.tick(15)
+        keyboard = True, pg.display.update(), pg.time.Clock().tick(15)
 
 
-SnakeGame()
+if __name__ == "__main__":
+    screen = pg.display.set_mode((1276, 704))
+    pg.display.set_caption("Snake")
+    SnakeGame()
