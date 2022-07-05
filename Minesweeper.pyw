@@ -1,246 +1,110 @@
-import pygame
+import contextlib
 import random
-import time
-import sys
-import os
-
-pygame.display.init(), pygame.font.init()
-clock = pygame.time.Clock()
-screen = pygame.display.set_mode((1280, 720))
-pygame.display.set_caption("Minesweeper")
-
-black, s_darkgray, darkgray, gray, gray2, white = (0, 0, 0), (51, 51, 51), (91, 91, 91), (71, 71, 71), (138, 138, 138), (255, 255, 255)
-darkred, red, lightgray = (141, 39, 45), (193, 39, 45), (153, 153, 153)
-darkblue, blue, lightblue, lighterblue = (0, 75, 188), (0, 113, 188), (41, 146, 226), (41, 171, 226)
-lightorange, orange = (247, 127, 45), (247, 107, 30)
-darkgreen, green, lightgreen = (0, 175, 69), (0, 146, 69), (72, 181, 89)
+import pygame
+from Things import Colors, Fonts, centerPrint, AbstractButton, TimePiece
 
 
-def resource_path(relative_path):
-	if hasattr(sys, "_MEIPASS"):
-		return os.path.join(sys._MEIPASS, relative_path)
-	return os.path.join(os.path.abspath("."), relative_path)
+class Button(AbstractButton):
+    def show(self, mouse):
+        if self.under(mouse):
+            pygame.draw.rect(screen, Colors["lightgray"], self.rect)
+            pygame.draw.rect(screen, Colors["gray"], self.rect, 2)
+        else:
+            pygame.draw.rect(screen, Colors["lightgray2"], self.rect)
+        centerPrint(screen, self.text, self.rect.topleft, self.rect.size, Colors["white"])
 
 
-fontUI81 = pygame.font.Font(resource_path("./Fonts/seguisym.ttf"), 81)
-font21 = pygame.font.Font(resource_path("./Fonts/berlin-sans-fb-demi-bold.ttf"), 21)
+class Tile:
+    bomb, near, state = False, 0, None
 
 
-def centerprint(variable, x, y, sizeX, sizeY, color=(51, 51, 51), font=font21):
-	text = font.render(str(variable), True, color)
-	rect = pygame.Rect((x, y, sizeX, sizeY))
-	text_rect = text.get_rect()
-	text_rect.center = rect.center
-	screen.blit(text, text_rect)
+class Grid:
+    def __init__(self, columns, rows, bombs):
+        self.grid = [[Tile() for _ in range(columns)] for _ in range(rows)]
+        while bombs > 0:
+            if not (tile := self[random.randint(0, rows - 1)][random.randint(0, columns - 1)]).bomb:
+                tile.bomb, bombs = True, bombs - 1
 
+    def bombCounter(self, x, y):
+        for dx, dy in [(0, 1), (0, -1), (1, 0), (-1, 0), (1, 1), (1, -1), (-1, 1), (-1, -1)]:
+            with contextlib.suppress(IndexError):
+                if y + dy >= 0 and dx + x >= 0 and self[y + dy][x + dx].bomb:
+                    self[y][x].near += 1
+                self[y][x].state = VIS
 
-class ButtonBox:
-	def __init__(self, number, x, y, w, h):
-		self.number = number
-		self.x = x
-		self.y = y
-		self.w = w
-		self.h = h
-		self.rect = pygame.Rect((x, y), (self.w, self.h))
-		
-	def show(self, mouse):
-		if self.x+self.w > mouse[0] > self.x and self.y+self.h > mouse[1] > self.y:
-			pygame.draw.rect(screen, darkgray, [self.x, self.y, self.w, self.h])
-			centerprint(self.number, self.x, self.y, self.w, self.h, (220, 220, 220))
-		else:
-			pygame.draw.rect(screen, (220, 220, 220), [self.x, self.y, self.w, self.h])
-			pygame.draw.rect(screen, darkgray, pygame.Rect((self.x, self.y, self.w, self.h)), 1)
-			centerprint(self.number, self.x, self.y, self.w, self.h, darkgray)
-				
-	def click(self, event):
-		if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
-			return self.rect.collidepoint(event.pos)
+    def search(self, x, y):
+        if 0 <= x < len(self[0]) and 0 <= y < len(self.grid) and self[y][x].state != VIS and not self[y][x].bomb:
+            self.bombCounter(x, y)
+            if self[y][x].near == 0:
+                [self.search(x + dx, y + dy) for dx, dy in [(0, 1), (0, -1), (1, 0), (-1, 0), (1, 1), (1, -1), (-1, 1), (-1, -1)]]
 
-
-def draw(path, x, y):
-	screen.blit(pygame.image.load(path), (x, y))
+    def __getitem__(self, item):
+        return self.grid[item]
 
 
 def Minesweeper(bombs):
-	class Tile:
-		def __init__(self):
-			self.bomb = False
-			self.near = 0
-			self.visible = False
-			self.flag = False
-			self.doubt = False
+    rows, columns, w, lost = 16, 32, 40, False
+    grid, timer, countdown = Grid(columns, rows, bombs), TimePiece(), TimePiece()
+    textColors = {1: "blue", 2: "green", 3: "red", 4: "darkblue", 5: "darkred", 6: "darkgray", 7: "darkgray", 8: "black2"}
 
-	global flags, startTime1, seconds
-	width, rows, columns, flags = 40, 16, 32, bombs
-	lose, seconds1, startTime, minutes = False, None, time.time(), 0
-	grid = [[Tile() for y in range(columns)] for x in range(rows)]  # Generate the grid
+    while True:
+        won = all(tile.bomb and tile.state == FLAG or not tile.bomb and tile.state != FLAG for line in grid for tile in line)
+        mx, my = pygame.mouse.get_pos()[0] // w, pygame.mouse.get_pos()[1] // w - 2
 
-	def bombcounter(x, y):  # Checks for bombs around tile
-		bombnear = 0
-		for (cx, cy) in [(0, 1), (0, -1), (1, 0), (-1, 0), (1, 1), (1, -1), (-1, 1), (-1, -1)]:
-			try:
-				if y+cy < 0 or x+cx < 0:  # Avoid off grid checking
-					raise IndexError
-				if grid[y+cy][x+cx].bomb: 
-					bombnear += 1
-					grid[y][x].near = bombnear
-				grid[y][x].visible = True
-			except IndexError:
-				pass
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                return
 
-	def search(x, y, rows=rows, columns=columns):
-		global flags
-		if 0 <= x < columns and 0 <= y < rows:
-			tile = grid[y][x]
-			if tile.visible or tile.bomb:  # Stop when it reaches an already visited tile or tile is a bomb
-				return
-			bombcounter(x, y)  # Counts the number of adjacent bombs
-			if tile.near > 0:
-				if tile.flag:
-					flags += 1
-				return
-			if tile.flag:
-				flags += 1
-			tile.visible = True
-			for (cx, cy) in [(0, 1), (0, -1), (1, 0), (-1, 0), (1, 1), (1, -1), (-1, 1), (-1, -1)]:
-				search(x+cx, y+cy)
+            if event.type == pygame.MOUSEBUTTONDOWN and not lost and not won and 0 <= mx < columns and 0 <= my < rows:
+                if event.button == 1 and grid[my][mx].state != FLAG:
+                    grid.search(mx, my)
+                    lost, grid[my][mx].state = grid[my][mx].bomb, VIS
+                for button, state in [(2, DOUBT), (3, FLAG)]:
+                    if event.button == button and grid[my][mx].state != VIS:
+                        grid[my][mx].state = state if grid[my][mx].state != state else None
 
-	for b in range(bombs):  # Place the bombs
-		while True:
-			x = random.randint(0, rows-1)
-			y = random.randint(0, columns-1)
-			if not grid[x][y].bomb:
-				grid[x][y].bomb = True
-				break
+        screen.fill(Colors["white"])
+        pygame.draw.rect(screen, Colors["orange"], pygame.Rect((409, 20, 110, 37)), 1)
+        pygame.draw.rect(screen, Colors["gray"], pygame.Rect((762, 20, 110, 37)), 1)
+        centerPrint(screen, bombs, (409, 20), (110, 37), Colors["orange"])
+        centerPrint(screen, timer, (762, 20), (110, 37), Colors["gray"])
 
-	while True: 
-		if lose:  # Defeat
-			if seconds1 is None: startTime1 = time.time()
-			seconds1 = round(int(time.time() - startTime1))
-			if seconds1 > 3: return False
+        for y, row in enumerate(grid):
+            for x, t in enumerate(row):
+                c = Colors["lightred" if t.bomb and t.state == VIS else "red" if t.bomb and lost else "lightorange" if t.state == FLAG else "lightgreen" if t.state == DOUBT else "white" if t.state == VIS else "lightgray2"]
+                pygame.draw.rect(screen, c, [x * w, w * 2 + y * w, w, w])
+                if t.near > 0:
+                    centerPrint(screen, t.near, (x * w, w * 2 + y * w), (w, w), Colors[textColors[t.near]])
+                c = Colors["darkgray" if t.state == VIS else "black"]
+                pygame.draw.rect(screen, c, pygame.Rect((x * w, w * 2 + y * w, w + 1, w + 1)), 1)
 
-		win = True
-		for r in grid:
-			for t in r:
-				if t.bomb and not t.flag:
-					win = False; break
-		if win:  # Victory
-			if seconds1 is None: startTime1 = time.time()
-			seconds1 = round(int(time.time() - startTime1))
-			if seconds1 > 3: return True
+        if 0 <= mx < columns and 0 <= my < rows and not won and not lost and grid[my][mx].state != VIS:
+            c = Colors["orange" if grid[my][mx].state == FLAG else "darkgreen" if grid[my][mx].state == DOUBT else "lightgray"]
+            pygame.draw.rect(screen, c, [mx * w, my * w + w * 2, w, w])
+            pygame.draw.rect(screen, Colors["black"], pygame.Rect((mx * w, my * w + w * 2, w + 1, w + 1)), 1)
 
-		mouse = pygame.mouse.get_pos()
-		if not win and not lose:  # Stop Counter if Game Ends
-			seconds = round(int(time.time() - startTime))
-		if seconds > 59:
-			startTime = time.time()
-			minutes += 1
-			pygame.time.delay(50)
+        if countdown.seconds > 3:
+            return won
 
-		screen.fill(white)
-
-		pygame.draw.rect(screen, orange, pygame.Rect((409, 20, 110, 37)), 1)
-		pygame.draw.rect(screen, gray, pygame.Rect((762, 20, 110, 37)), 1)
-		centerprint(flags, 409, 20, 110, 37, orange)
-		centerprint("{}:{}".format("{:02d}".format(minutes), "{:02d}".format(seconds)), 762, 20, 110, 37, gray)
-
-		mx = mouse[0]//width
-		my = mouse[1]//width-2
-		y = width*2  # Display the grid *2
-		for row in grid:
-			x = 0  # width*1
-			for tile in row:
-				if tile.bomb and not tile.flag:
-					win = False
-				if tile.bomb and lose:  # Display tiles with bombs
-					pygame.draw.rect(screen, red, [x, y, width, width])
-				else:  # Display not visible tiles
-					pygame.draw.rect(screen, lightgray, [x, y, width, width])
-				if tile.flag and not lose:  # Display flagged tiles
-					pygame.draw.rect(screen, lightorange, [x, y, width, width])
-				if tile.doubt and not lose:  # Display doubted tiles
-					pygame.draw.rect(screen, lightgreen, [x, y, width, width])
-				if tile.visible and not tile.bomb:  # Display quantity of near bombs
-					pygame.draw.rect(screen, white, [x, y, width, width])
-					if tile.near == 1:
-						centerprint(tile.near, x, y, width, width, blue)
-					elif tile.near == 2:
-						centerprint(tile.near, x, y, width, width, green)
-					elif tile.near == 3:
-						centerprint(tile.near, x, y, width, width, red)
-					elif tile.near == 4:
-						centerprint(tile.near, x, y, width, width, darkblue)
-					elif tile.near == 5:
-						centerprint(tile.near, x, y, width, width, darkred)
-					elif tile.near > 5:
-						centerprint(tile.near, x, y, width, width, s_darkgray) 
-				if not tile.visible:  # Display Grid
-					rect1 = pygame.Rect((x, y, width+1, width+1))
-					pygame.draw.rect(screen, black, rect1, 1)
-				if tile.visible:
-					rect = pygame.Rect((x, y, width+1, width+1))
-					pygame.draw.rect(screen, darkgray, rect, 1)
-				if 0 <= mx < columns and 0 <= my < rows and grid[my][mx].near == 0 and not lose and not grid[my][mx].visible and not win:  # Mouse following
-					if grid[my][mx].flag:
-						pygame.draw.rect(screen, orange, [mx*width, my*width+width*2, width, width])
-					if grid[my][mx].doubt:
-						pygame.draw.rect(screen, darkgreen, [mx*width, my*width+width*2, width, width])
-					if not grid[my][mx].flag and not grid[my][mx].doubt:
-						pygame.draw.rect(screen, gray2, [mx*width, my*width+width*2, width, width])
-					rect = pygame.Rect((mx*width, my*width+width*2, width+1, width+1))
-					pygame.draw.rect(screen, black, rect, 1)
-				x += width
-			y += width
-
-		for event in pygame.event.get():  # Check events
-			if event.type == pygame.QUIT:
-				return False
-			if event.type == pygame.MOUSEBUTTONDOWN and not lose and not win:
-				if event.button == 1 and 0 <= mx < columns and 0 <= my < rows:
-					if not grid[my][mx].flag:  # Lock flagged tile
-						search(mx, my)
-						if grid[my][mx].bomb:  # Checks Defeat
-							lose = True
-				elif event.button == 2 and 0 <= mx < columns and 0 <= my < rows:
-					if not grid[my][mx].visible:
-						grid[my][mx].doubt = not grid[my][mx].doubt
-						grid[my][mx].flag = False
-
-				elif event.button == 3 and 0 <= mx < columns and 0 <= my < rows:  # Flag clicked tile
-					if not grid[my][mx].visible:
-						grid[my][mx].flag = not grid[my][mx].flag
-						grid[my][mx].doubt = False
-
-		pygame.display.update(); clock.tick(30)
+        timer.update(not won and not lost), countdown.update(won or lost), pygame.display.update(), pygame.time.Clock().tick(30)
 
 
 def Menu():
-	Easy = ButtonBox("Fácil", 370, 400, 160, 40)
-	Medium = ButtonBox("Médio", 560, 400, 160, 40)
-	Hard = ButtonBox("Difícil", 750, 400, 160, 40)
-	
-	while True:
-		mouse = pygame.mouse.get_pos()
-		
-		events = pygame.event.get()
-		for event in events:
-			if event.type == pygame.QUIT:
-				sys.exit()
-			
-			if Easy.click(event):
-				Minesweeper(45)
-			if Medium.click(event):
-				Minesweeper(65)
-			if Hard.click(event):
-				Minesweeper(95)
-						
-		screen.fill(white)
-		centerprint("Minesweeper", 340, 100, 600, 100, font=fontUI81)
-		
-		Easy.show(mouse), Medium.show(mouse), Hard.show(mouse)
-		
-		pygame.display.update(); clock.tick(15)
+    buttons = [Button(text, (370 + 190 * i, 400), (160, 40)) for i, text in enumerate(["Fácil", "Normal", "Difícil"])]
+
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                return
+            [Minesweeper(60 + 20 * i) if buttons[i].click(event) else ... for i in range(len(buttons))]
+
+        screen.fill(Colors["white"])
+        centerPrint(screen, "Minesweeper", (340, 100), (600, 100), Colors["gray"], Fonts["demiBold80"])
+        [button.show(pygame.mouse.get_pos()) for button in buttons], pygame.display.update(), pygame.time.Clock().tick(30)
 
 
+VIS, FLAG, DOUBT = 1, 2, 3
 if __name__ == "__main__":
-	Menu()
+    screen = pygame.display.set_mode((1280, 720))
+    pygame.display.set_caption("Minesweeper")
+    Menu()
