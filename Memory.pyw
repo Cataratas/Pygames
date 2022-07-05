@@ -1,121 +1,68 @@
 import pygame
-import pygame.freetype
 import random
-import time
-import sys
-import os
-
-pygame.display.init(), pygame.freetype.init()
-
-clock = pygame.time.Clock()
-screen = pygame.display.set_mode((1280, 720))
-
-
-def resource_path(relative_path):
-	if hasattr(sys, "_MEIPASS"):
-		return os.path.join(sys._MEIPASS, relative_path)
-	return os.path.join(os.path.abspath("."), relative_path)
-
-
-pygame.display.set_caption("Memory")
-
-font50 = pygame.freetype.Font(resource_path("./Fonts/seguiemj.ttf"), 50)
-white = (255, 255, 255)
-
-
-def centerprint(variable, x, y, sizeX, sizeY, color, font=font50):
-	color = color[:-1] + (255, )
-	text = font.render(str(variable), color)
-	rect = pygame.Rect((x, y, sizeX, sizeY))
-	text_rect = text[0].get_rect()
-	text_rect.center = rect.center
-	screen.blit(text[0], text_rect)
+from Things import Colors, Fonts, centerPrintFreeType, TimePiece
 
 
 class Tile:
-	def __init__(self, symbol, color):
-		self.symbol = symbol
-		self.color = color
-		self.visible = False
-		self.paired = False
+    def __init__(self):
+        self.symbol, self.color = symbols[-1][0], symbols[-1][1] + (75,)
+        self.visible, self.paired = True, False
+        del symbols[-1]
 
-	def show(self, x, y, mouse, tile, w=121):
-		s = pygame.Surface((w, w), pygame.SRCALPHA)
-		s.fill((230, 230, 230))
-		if mouse == tile: s.fill((214, 214, 214))
-		if self.visible or self.paired:
-			s.fill(self.color)
-			centerprint(self.symbol, x, y, w, w, self.color)
-		screen.blit(s, (x, y))
+    def show(self, pos, mouse, tile, size=(121, 121)):
+        s = pygame.Surface(size, pygame.SRCALPHA)
+        s.fill(Colors["lightgray4" if mouse == tile else "lightgray3"])
+        if self.visible or self.paired:
+            centerPrintFreeType(screen, self.symbol, pos, size, self.color, Fonts["seguiEmj50"])
+            s.fill(self.color)
+        screen.blit(s, pos)
 
 
 def Memory():
-	rows, columns, flips, check, startTime, first, second = 5, 8, 0, False, None, None, None
-	start, startTime, seconds = True, time.time(), 0
+    rows, col, check, start, timer = 5, 8, [], True, TimePiece()
+    random.shuffle(symbols)
+    grid = [[Tile() for _ in range(col)] for _ in range(rows)]
 
-	symbols = [["⚓", (251, 176, 59, 75)], ["🍇", (102, 45, 145, 75)], ["♻", (57, 181, 74, 75)], ["🐟", (41, 171, 226, 75)], ["💼", (117, 76, 36, 75)], ["🗽", (0, 169, 157, 75)], ["🛰", (27, 20, 100, 75)], ["🧠", (255, 123, 172, 75)], ["🦋", (163, 123, 15, 75)], ["🦊", (241, 90, 36, 75)], ["🦉", (199, 178, 153, 75)], ["🦅", (58, 46, 0, 75)], ["🔮", (160, 113, 167, 75)], ["👽", (0, 104, 55, 75)], ["☂", (0, 113, 188, 75)], ["🐦", (193, 39, 45, 75)], ["👁", (131, 138, 150, 75)], ["🌷", (216, 149, 164, 75)], ["❄", (161, 205, 231, 75)], ["⛄", (136, 157, 201, 75)]]
-	symbols += symbols
-	random.shuffle(symbols)
+    while True:
+        mouse = pygame.mouse.get_pos()
+        mx, my = (mouse[1] - 43) // 128, (mouse[0] - 126) // 128
 
-	grid = [["" for y in range(columns)] for x in range(rows)]
-	for i in range(rows):
-		for j in range(columns):
-			if grid[i][j] == "":
-				grid[i][j] = Tile(symbols[-1][0], symbols[-1][1])
-				del symbols[-1]
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                return
 
-	while True:
-		mouse = pygame.mouse.get_pos()
-		mx, my = (mouse[1]-43)//128, (mouse[0]-126)//128
+            if event.type == pygame.MOUSEBUTTONUP and 0 <= mx < rows and 0 <= my < col and len(check) != 2 and not grid[mx][my].visible and not grid[mx][my].paired:
+                grid[mx][my].visible = True
+                check.append((mx, my))
 
-		if start:
-			seconds = round(int(time.time() - startTime))
-			for i in range(rows):
-				for j in range(columns):
-					grid[i][j].visible = True
-			if seconds > 3:
-				for i in range(rows):
-					for j in range(columns):
-						grid[i][j].visible = False
-				start = False
+            if len(check) == 2 and (timer.seconds >= 2 or grid[check[0][0]][check[0][1]].symbol == grid[check[1][0]][check[1][1]].symbol):
+                match = grid[check[0][0]][check[0][1]].symbol == grid[check[1][0]][check[1][1]].symbol
+                grid[check[0][0]][check[0][1]].paired, grid[check[1][0]][check[1][1]].paired = match, match
+                grid[check[0][0]][check[0][1]].visible, grid[check[1][0]][check[1][1]].visible, check = False, False, []
+                timer.reset()
 
-		for event in pygame.event.get():
-			if event.type == pygame.QUIT: sys.exit()
-			if event.type == pygame.MOUSEBUTTONUP:
-				if 0 <= mx < rows and 0 <= my < columns and not grid[mx][my].paired and not grid[mx][my].visible and second is None:
-					grid[mx][my].visible = True
-					if flips == 0: first = grid[mx][my]
-					elif flips == 1: second = grid[mx][my]
-					flips += 1
-					if flips == 2: check = True; startTime = time.time()
+        if all(tile.paired for row in grid for tile in row):
+            return True
 
-		screen.fill(white)
-		x, y = 131, -85
-		win = True
-		for i in range(rows):
-			y += 128
-			x = 131
-			for j in range(columns):
-				grid[i][j].show(x, y, (mx, my), (i, j))
-				if not grid[i][j].paired: win = False
-				x += 128
+        if start and timer.seconds >= 3:
+            for row in grid:
+                for tile in row:
+                    tile.visible = False
+            start = False, timer.reset()
 
-		if win: return True
+        screen.fill(Colors["white"])
+        for i, row in enumerate(grid):
+            for j, tile in enumerate(row):
+                tile.show((131 + 128 * j, 43 + 128 * i), (mx, my), (i, j))
 
-		if first is not None and second is not None and first.symbol == second.symbol:
-			first.paired, second.paired = True, True
-			first, second = None, None
-			flips, check = 0, False
-
-		if startTime is not None: seconds = round(int(time.time() - startTime))
-
-		if check and seconds >= 1:
-			first.visible, second.visible = False, False
-			first, second = None, None
-			flips, check = 0, False
-
-		pygame.display.update()
-		clock.tick(25)
+        timer.update(), pygame.display.update(), pygame.time.Clock().tick(30)
 
 
-if __name__ == "__main__": Memory()
+symbols = [["⚓", (251, 176, 59)], ["🍇", (102, 45, 145)], ["♻", (57, 181, 74)], ["🐟", (41, 171, 226)], ["💼", (117, 76, 36)],
+           ["🗽", (0, 169, 157)], ["🛰", (27, 20, 100)], ["🧠", (255, 123, 172)], ["🦋", (163, 123, 15)], ["🦊", (241, 90, 36)],
+           ["🦉", (199, 178, 153)], ["🦅", (58, 46, 0)], ["🔮", (160, 113, 167)], ["👽", (0, 104, 55)], ["☂", (0, 113, 188)],
+           ["🐦", (193, 39, 45)], ["👁", (131, 138, 150)], ["🌷", (216, 149, 164)], ["❄", (161, 205, 231)], ["⛄", (136, 157, 201)]] * 2
+if __name__ == "__main__":
+    screen = pygame.display.set_mode((1280, 720))
+    pygame.display.set_caption("Memory")
+    Memory()
