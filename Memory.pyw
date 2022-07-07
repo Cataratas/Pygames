@@ -1,11 +1,12 @@
 import pygame
 import random
+import json
 from Things import Colors, Fonts, centerPrintFreeType, TimePiece
 
 
 class Tile:
     def __init__(self):
-        self.symbol, self.color = symbols[-1][0], symbols[-1][1] + (75,)
+        self.symbol, self.color = symbols[-1][0], symbols[-1][1] + [75, ]
         self.visible, self.paired = True, False
         del symbols[-1]
 
@@ -58,10 +59,7 @@ def Memory():
         timer.update(), pygame.display.update(), pygame.time.Clock().tick(30)
 
 
-symbols = [["⚓", (251, 176, 59)], ["🍇", (102, 45, 145)], ["♻", (57, 181, 74)], ["🐟", (41, 171, 226)], ["💼", (117, 76, 36)],
-           ["🗽", (0, 169, 157)], ["🛰", (27, 20, 100)], ["🧠", (255, 123, 172)], ["🦋", (163, 123, 15)], ["🦊", (241, 90, 36)],
-           ["🦉", (199, 178, 153)], ["🦅", (58, 46, 0)], ["🔮", (160, 113, 167)], ["👽", (0, 104, 55)], ["☂", (0, 113, 188)],
-           ["🐦", (193, 39, 45)], ["👁", (131, 138, 150)], ["🌷", (216, 149, 164)], ["❄", (161, 205, 231)], ["⛄", (136, 157, 201)]] * 2
+symbols = json.load(open("Assets/symbols.json"))
 if __name__ == "__main__":
     screen = pygame.display.set_mode((1280, 720))
     pygame.display.set_caption("Memory")
