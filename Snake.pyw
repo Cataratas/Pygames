@@ -35,8 +35,8 @@ def SnakeGame():
                 keyboard, start = False, False
 
         screen.fill(Colors["black2"])
-        draw(screen, "./Layout/Snake Food.png", (food[0] * w, food[1] * w))
-        [draw(screen, f"./Layout/Snake {'Body' if i != 0 else 'Head'}.png", (body[0] * w, body[1] * w)) for i, body in enumerate(snake.body)]
+        draw(screen, "Assets/Snake Food.png", (food[0] * w, food[1] * w))
+        [draw(screen, f"Assets/Snake {'Body' if i != 0 else 'Head'}.png", (body[0] * w, body[1] * w)) for i, body in enumerate(snake.body)]
 
         if food == snake.body[0]:
             snake.body.append(snake.body[-1])

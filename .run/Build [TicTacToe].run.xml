@@ -1,0 +1,17 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Build [TicTacToe]" type="ShConfigurationType">
+    <option name="SCRIPT_TEXT" value="pyinstaller --onefile --add-data=&quot;./Fonts/;./Fonts/&quot; --add-data=&quot;./Layout/X.png;./Layout/&quot; --add-data=&quot;./Layout/O.png;./Layout/&quot; --add-data=&quot;./Layout/BlackCircle.png;./Layout/&quot; --add-data=&quot;./Layout/RedCircle.png;./Layout/&quot; --add-data=&quot;./Layout/BlueCircle.png;./Layout/&quot; --add-data=&quot;./Layout/Tile.png;./Layout/&quot; --add-data=&quot;./Layout/Tile 2.png;./Layout/&quot; --add-data=&quot;./Layout/Tile 2Red.png;./Layout/&quot; --add-data=&quot;./Layout/Tile 2Blue.png;./Layout/&quot; --add-data=&quot;./Layout/Gray.png;./Layout/&quot; --add-data=&quot;./Layout/Long Gray.png;./Layout/&quot; --add-data=&quot;./Layout/Long Gray 2.png;./Layout/&quot; TicTacToe.pyw" />
+    <option name="INDEPENDENT_SCRIPT_PATH" value="true" />
+    <option name="SCRIPT_PATH" value="" />
+    <option name="SCRIPT_OPTIONS" value="" />
+    <option name="INDEPENDENT_SCRIPT_WORKING_DIRECTORY" value="true" />
+    <option name="SCRIPT_WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+    <option name="INDEPENDENT_INTERPRETER_PATH" value="true" />
+    <option name="INTERPRETER_PATH" value="" />
+    <option name="INTERPRETER_OPTIONS" value="" />
+    <option name="EXECUTE_IN_TERMINAL" value="true" />
+    <option name="EXECUTE_SCRIPT_FILE" value="false" />
+    <envs />
+    <method v="2" />
+  </configuration>
+</component>

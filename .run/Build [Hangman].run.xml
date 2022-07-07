@@ -1,0 +1,17 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Build [Hangman]" type="ShConfigurationType">
+    <option name="SCRIPT_TEXT" value="pyinstaller --onefile --add-data=&quot;./Fonts/;./Fonts/&quot; --add-data=&quot;./Layout/Blanks.png;./Layout/&quot; --add-data=&quot;./Layout/Post.png;./Layout/&quot; --add-data=&quot;./Layout/Head.png;./Layout/&quot; --add-data=&quot;./Layout/Body.png;./Layout/&quot; --add-data=&quot;./Layout/Arm.png;./Layout/&quot; --add-data=&quot;./Layout/Leg.png;./Layout/&quot; --add-data=&quot;./Layout/Face.png;./Layout/&quot; Hangman.pyw" />
+    <option name="INDEPENDENT_SCRIPT_PATH" value="true" />
+    <option name="SCRIPT_PATH" value="" />
+    <option name="SCRIPT_OPTIONS" value="" />
+    <option name="INDEPENDENT_SCRIPT_WORKING_DIRECTORY" value="true" />
+    <option name="SCRIPT_WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+    <option name="INDEPENDENT_INTERPRETER_PATH" value="true" />
+    <option name="INTERPRETER_PATH" value="" />
+    <option name="INTERPRETER_OPTIONS" value="" />
+    <option name="EXECUTE_IN_TERMINAL" value="true" />
+    <option name="EXECUTE_SCRIPT_FILE" value="false" />
+    <envs />
+    <method v="2" />
+  </configuration>
+</component>
