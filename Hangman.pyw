@@ -19,7 +19,7 @@ class Button(AbstractButton):
             centerPrint(screen, self.text, self.rect.topleft, self.rect.size, Colors.DARKGRAY, Fonts.Myriad21)
 
 
-def Hangman(words=json.load(open("./Assets/words.json"))):
+def Hangman(words=json.load(open("Assets/words.json"))):
     word, alphabet, letters, lives = random.choice(words).upper(), list(string.ascii_uppercase), [], 7
 
     while True:

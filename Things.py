@@ -94,8 +94,7 @@ def centerPrint(screen, variable, pos, size, color=Colors["black"], font=Fonts["
 
 
 def centerPrintFreeType(screen, variable, pos, size, color, font):
-    color = color[:-1] + (255,)
-    text = font.render(str(variable), color)
+    text = font.render(str(variable), color[:-1])
     text_rect = text[0].get_rect()
     text_rect.center = pygame.Rect(pos + size).center
     screen.blit(text[0], text_rect)
