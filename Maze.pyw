@@ -1,184 +1,77 @@
-import pygame
+import pygame as pg
 import random
-import sys
-import os
-
-pygame.display.init(), pygame.font.init()
-clock = pygame.time.Clock()
-screen = pygame.display.set_mode((1280, 720))
-
-white, blue, red = (255, 255, 255), (0, 113, 188), (193, 39, 45)
-black = (25, 25, 25)
+from Things import Colors, draw
 
 
-def resource_path(relative_path):
-    if hasattr(sys, "_MEIPASS"):
-        return os.path.join(sys._MEIPASS, relative_path)
-    return os.path.join(os.path.abspath("."), relative_path)
+def generateMaze(width, height):
+    grid = [([0 if column % 2 == 1 and row % 2 == 1 else 1 for column in range(width)]) for row in range(height)]
+    w, h = (len(grid[0]) - 1) // 2, (len(grid) - 1) // 2
+    vis = [[0] * w + [1] for _ in range(h)] + [[1] * (w + 1)]
+
+    def walk(x, y):
+        vis[y][x], d = 1, [(x - 1, y), (x, y + 1), (x + 1, y), (x, y - 1)]
+        random.shuffle(d)
+        for xx, yy in d:
+            if vis[yy][xx]:
+                continue
+            if xx == x:
+                grid[max(y, yy) * 2][x * 2 + 1] = 0
+            if yy == y:
+                grid[y * 2 + 1][max(x, xx) * 2] = 0
+
+            walk(xx, yy)
+
+    walk(random.randrange(w), random.randrange(h))
+    return grid
 
 
-pygame.display.set_caption("Maze")
-
-
-def draw(path, x, y, mirror=False):
-    if mirror:
-        screen.blit(pygame.transform.flip(pygame.image.load(resource_path(path)), True, False), (x, y))
-    else:
-        screen.blit(pygame.image.load(resource_path(path)).convert_alpha(), (x, y))
-
-
-def maze():
-    class Character:
-        def __init__(self):
-            self.x = 0
-            self.y = 0
-            self.radius = 2
-            self.right = True
-
-        def show(self):
-            global n_keys
-            if self.right:
-                draw(resource_path("./Layout/Player.png"), self.x, self.y - 5, True)
-            else:
-                draw(resource_path("./Layout/Player.png"), self.x, self.y - 5, False)
-            for i in range(3):
-                try:
-                    if self.x == Keys[i].x and self.y == Keys[i].y:
-                        del Keys[i]
-                        n_keys += 1
-                except IndexError:
-                    continue
-
-        def update(self):
-            p_k = pygame.key.get_pressed()
-            if (p_k[pygame.K_RIGHT] or p_k[pygame.K_d]) and (self.x + width, self.y) and (self.x - 8 + width, self.y - 8) not in Wall:
-                self.x += width
-            elif (p_k[pygame.K_LEFT] or p_k[pygame.K_a]) and (self.x - width, self.y) and (self.x - 8 - width, self.y - 8) not in Wall:
-                self.x -= width
-                self.right = False
-            elif (p_k[pygame.K_UP] or p_k[pygame.K_w]) and (self.x, self.y - width) and (self.x - 8, self.y - 8 - width) not in Wall:
-                self.y -= width
-            elif (p_k[pygame.K_DOWN] or p_k[pygame.K_s]) and (self.x, self.y + width) and (self.x - 8, self.y - 8 + width) not in Wall:
-                self.y += width
-            if p_k[pygame.K_RIGHT] or p_k[pygame.K_d]: self.right = True
-            if p_k[pygame.K_LEFT] or p_k[pygame.K_a]: self.right = False
-
-    class Key:
-        def __init__(self):
-            self.x = 0
-            self.y = 0
-
-        def show(self):
-            draw(resource_path("./Layout/Key.png"), self.x - 3, self.y - 5)
-
-    class Exit:
-        def __init__(self):
-            self.x = 0
-            self.y = 0
-
-        def show(self, n_keys):
-            if n_keys == 3:
-                draw(resource_path("./Layout/Door.png"), self.x - 2, self.y - 5)
-            else:
-                draw(resource_path("./Layout/Door 0.png"), self.x - 2, self.y - 5)
-
-    def create_grid(width, height):
-        Grid = []
-        for row in range(height):
-            Grid.append([])
-            for column in range(width):
-                if column % 2 == 1 and row % 2 == 1:
-                    Grid[row].append(0)
-                elif column == 0 or row == 0 or column == width - 1 or row == height - 1:
-                    Grid[row].append(1)
-                else:
-                    Grid[row].append(1)
-        return Grid
-
-    def make_maze(Grid):
-        w = (len(Grid[0]) - 1) // 2
-        h = (len(Grid) - 1) // 2
-        vis = [[0] * w + [1] for _ in range(h)] + [[1] * (w + 1)]
-
-        def walk(x: int, y: int):
-            vis[y][x] = 1
-
-            d = [(x - 1, y), (x, y + 1), (x + 1, y), (x, y - 1)]
-            random.shuffle(d)
-            for (xx, yy) in d:
-                if vis[yy][xx]:
-                    continue
-                if xx == x:
-                    Grid[max(y, yy) * 2][x * 2 + 1] = 0
-                if yy == y:
-                    Grid[y * 2 + 1][max(x, xx) * 2] = 0
-
-                walk(xx, yy)
-
-        walk(random.randrange(w), random.randrange(h))
-
-        return Grid
-
-    global n_keys
-    # Initialize Variables
-    Wall, Path, COLUMNS, ROWS, width, n_keys = [], [], 35, 17, 35, 0
-    Player, Keys, Exit = Character(), [], Exit()
-
-    Grid = create_grid(ROWS, COLUMNS)
-    make_maze(Grid)
-
-    # Append Maze to List
-    for i in range(COLUMNS):
-        for j in range(ROWS):
-            if Grid[i][j] == 1:
-                Wall.append((29 + width * i, 64 + width * j))
-            elif Grid[i][j] == 0:
-                Path.append(((29 + width * i) + 8, (64 + width * j) + 8))
-
-    # Randomly Position Stuff
-    Player.x, Player.y = random.choice(Path)
-    for s in range(len(Path)):
-        if (Player.x, Player.y) == (Path[s]): del Path[s]; break
-    for i in range(3):
-        Keys.append(Key())
-        Keys[i].x, Keys[i].y = random.choice(Path)
-        for s in range(len(Path)):
-            if (Keys[i].x, Keys[i].y) == (Path[s]): del Path[s]; break
-    Exit.x, Exit.y = random.choice(Path)
+def Maze():
+    columns, rows, w, totalKeys = 35, 17, 35, 0
+    maze = generateMaze(rows, columns)
+    path = [(i, j) for i in range(columns) for j in range(rows) if maze[i][j] == 0]
+    player, side, radius, keys, door = list(random.choice(path)), True, 50, [random.choice(path) for _ in range(3)], random.choice(path)
 
     while True:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT: sys.exit()
+        for event in pg.event.get():
+            if event.type == pg.QUIT:
+                return
 
-        # Victory
-        if n_keys == 3 and Player.x == Exit.x and Player.y == Exit.y: return True
+        kb = pg.key.get_pressed()
+        for key, dir, axis in [((pg.K_RIGHT, pg.K_d), (1, 0), 0), ((pg.K_LEFT, pg.K_a), (-1, 0), 0), ((pg.K_UP, pg.K_w), (0, -1), 1), ((pg.K_DOWN, pg.K_s), (0, 1), 1)]:
+            if (kb[key[0]] or kb[key[1]]) and maze[player[0] + dir[0]][player[1] + dir[1]] == 0:
+                player[axis] += dir[0] if dir[0] != 0 else dir[1]
+        for k, s in [((pg.K_RIGHT, pg.K_d), True), ((pg.K_LEFT, pg.K_a), False)]:
+            side = s if kb[k[0]] or kb[k[1]] else side
 
-        # Display Stuff
-        screen.fill(black)
-        for i in range(3):
-            try:
-                Keys[i].show()
-            except IndexError:
-                continue
-        Exit.show(n_keys)
+        if totalKeys == 3 and tuple(player) == door:
+            return True
 
-        for x in range(29, 1220, width):
-            for y in range(64, 659, width):
-                if Player.x + (Player.radius * 32) + 32 > x > Player.x - (Player.radius * 32) - 32 and Player.y + (Player.radius * 32) + 32 > y > Player.y - (Player.radius * 32) - 32:
-                    if (x, y) in Wall: pygame.draw.rect(screen, blue, [x, y, width - 3, width - 3])
+        screen.fill(Colors["black2"])
+        [draw(screen, "Assets/Key.png", ((29 + w * key[0]) + 5, (64 + w * key[1]) + 2)) for key in keys]
+        draw(screen, f"Assets/Door{'' if totalKeys == 3 else ' 0'}.png", ((29 + w * door[0]) + 6, (64 + w * door[1]) + 2))
+
+        if tuple(player) in keys:
+            totalKeys += 1
+            del keys[keys.index((player[0], player[1]))]
+
+        for i in range(columns):
+            for j in range(rows):
+                if player[0] - radius <= i <= player[0] + radius and player[1] - radius <= j <= player[1] + radius:
+                    if maze[i][j] == 1:
+                        pg.draw.rect(screen, Colors["blue"], [29 + w * i, 64 + w * j, w - 3, w - 3])
                 else:
-                    pygame.draw.rect(screen, (151, 151, 151), [x, y, 32, 32])
+                    pg.draw.rect(screen, Colors["lightgray2"], [29 + w * i, 64 + w * j, w - 3, w - 3])
+                if i == 0 or i == columns - 1 or j == 0 or j == rows - 1:
+                    pg.draw.rect(screen, Colors["red"], [29 + w * i, 64 + w * j, w - 3, w - 3])
 
-        for x in range(q := 29, 1220, width):
-            pygame.draw.rect(screen, red, [x, 64, width - 3, width - 3])  # Top
-            pygame.draw.rect(screen, red, [x, 624, width - 3, width - 3])  # Bottom
-            if x < 600: pygame.draw.rect(screen, red, [q, x + 35, width - 3, width - 3])  # Left
-            if x < 600: pygame.draw.rect(screen, red, [1219, x + 35, width - 3, width - 3])  # Right
-        for x in range(3): draw(resource_path("./Layout/Key 0.png"), 591 + 35 * x, 18)
-        for x in range(n_keys): draw(resource_path("./Layout/Key.png"), 591 + 35 * x, 18)
+        [draw(screen, "Assets/Key 0.png", (591 + 35 * i, 18)) for i in range(3)]
+        [draw(screen, "Assets/Key.png", (591 + 35 * i, 18)) for i in range(totalKeys)]
+        draw(screen, "Assets/Player.png", ((29 + w * player[0]) + 8, (64 + w * player[1]) + 4), side)
 
-        Player.update(); Player.show()
-        pygame.display.update(); clock.tick(12)
+        pg.display.update(), pg.time.Clock().tick(12)
 
 
-maze()
+if __name__ == "__main__":
+    screen = pg.display.set_mode((1280, 720))
+    pg.display.set_caption("Maze")
+    Maze()
