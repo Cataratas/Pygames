@@ -17,8 +17,9 @@ class Button(AbstractButton):
 
 
 def Sudoku(difficultyStr, difficultyInt):
+    print(difficultyInt)
     grid = [[0 for _ in range(9)] for _ in range(9)]
-    generatePuzzle(grid), remove(grid, difficultyInt + 1)
+    generatePuzzle(grid), remove(grid, difficultyInt)
     w, active, actions, timer, mGrid = 40, None, [[], []], TimePiece(), copy.deepcopy(grid)
     delete, backward, foward = Button("✕", (15, 480), (40, 40)), Button("←", (535, 480), (40, 40)), Button("→", (585, 480), (40, 40))
 
@@ -91,7 +92,7 @@ def Menu():
                 return
             if printGame.click(event):
                 printMenu()
-            [Sudoku(buttons[i].text, (i + 1) ** 2 - 1 * i) if buttons[i].click(event) else ... for i in range(len(buttons))]
+            [Sudoku(buttons[i].text, round((i+1)**1.85)) if buttons[i].click(event) else ... for i in range(len(buttons))]
 
         screen.fill(Colors["white"])
         centerPrint(screen, "Sudoku", (20, 100), (600, 100), Colors["darkgray"], Fonts["seguisym81"])

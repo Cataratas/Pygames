@@ -1,3 +1,4 @@
+import copy
 import random
 import itertools
 from tkinter import ttk
@@ -16,7 +17,7 @@ numberList, counter = list(range(1, 10)), 0
 
 def printMenu():
     def printPuzzles():
-        puzzles = [[[[0 for _ in range(9)] for _ in range(9)], 2 if i < int(easy.get()) else 4 if i < int(normal.get()) + int(easy.get()) else 8] for i in range(sum(map(int, (easy.get(), normal.get(), hard.get()))))]
+        puzzles = [[[[0 for _ in range(9)] for _ in range(9)], 1 if i < int(easy.get()) else 4 if i < int(normal.get()) + int(easy.get()) else 8] for i in range(sum(map(int, (easy.get(), normal.get(), hard.get()))))]
         [generatePuzzle(puzzle) for puzzle, d in puzzles]
         threads = [threading.Thread(target=remove, args=(puzzle, d, )) for puzzle, d in puzzles]
         [thread.start() for thread in threads]
@@ -26,7 +27,7 @@ def printMenu():
         for puzzle, d in puzzles:
             puzzle = [[f"{str(number) if number != 0 else ''}" for number in row] for row in puzzle]
 
-            grid.append(Paragraph(f"{'Fácil' if d == 2 else 'Médio' if d == 4 else 'Difícil'}", ParagraphStyle(name="Difficulty", alignment=TA_CENTER, fontSize=16, leading=12, spaceAfter=14)), )
+            grid.append(Paragraph(f"{'Fácil' if d == 1 else 'Médio' if d == 4 else 'Difícil'}", ParagraphStyle(name="Difficulty", alignment=TA_CENTER, fontSize=16, leading=12, spaceAfter=14)), )
             grid.append(Table(puzzle, 9*[0.45*inch], 9*[0.45*inch], spaceAfter=50))
             grid[-1].setStyle(TableStyle([("ALIGN", (0, 0), (-1, -1), "CENTER"), ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
                                          ("LINEBELOW", (0, 2), (8, 2), 1.75, colors.black), ("LINEBELOW", (0, 5), (8, 5), 1.75, colors.black),
@@ -80,21 +81,14 @@ def generatePuzzle(grid, row=0, col=0):
 
 def remove(grid, difficulty):
     global counter
-    attempts, counter = difficulty, 1
+    counter = 1
     while difficulty > 0:
         row, col = random.randint(0, 8), random.randint(0, 8)
         while grid[row][col] == 0:
             row, col = random.randint(0, 8), random.randint(0, 8)
         backup = grid[row][col]
         grid[row][col], counter = 0, 0
-
-        copyGrid = []
-        for r in range(9):
-            copyGrid.append([])
-            for c in range(9):
-                copyGrid[r].append(grid[r][c])
-
-        solve(copyGrid)
+        solve(copy.deepcopy(grid))
         if counter != 1:
             grid[row][col] = backup
             difficulty -= 1
