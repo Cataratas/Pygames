@@ -17,7 +17,6 @@ class Button(AbstractButton):
 
 
 def Sudoku(difficultyStr, difficultyInt):
-    print(difficultyInt)
     grid = [[0 for _ in range(9)] for _ in range(9)]
     generatePuzzle(grid), remove(grid, difficultyInt)
     w, active, actions, timer, mGrid = 40, None, [[], []], TimePiece(), copy.deepcopy(grid)
