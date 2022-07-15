@@ -41,9 +41,7 @@ Colors = {
 
 class TimePiece:
     def __init__(self):
-        self.__startTime = time.time()
-        self.__seconds = 0
-        self.__minutes = 0
+        self.__startTime, self.__seconds, self.__minutes, self.__hours = time.time(), 0, 0, 0
 
     def update(self, bl=True):
         if bl:
@@ -51,10 +49,15 @@ class TimePiece:
             if self.__seconds > 59:
                 self.__startTime = time.time()
                 self.__minutes += 1
+            if self.__minutes > 59:
+                self.__minutes = 0
+                self.__hours += 1
         else:
             self.__startTime = time.time()
 
     def __repr__(self):
+        if self.__hours > 0:
+            return f"{self.__hours:02d}:{self.__minutes:02d}:{self.__seconds:02d}"
         return f"{self.__minutes:02d}:{self.__seconds:02d}"
 
     @property
