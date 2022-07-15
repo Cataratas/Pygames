@@ -18,7 +18,10 @@ class Button(AbstractButton):
 
 def Sudoku(difficultyStr, difficultyInt):
     grid = [[0 for _ in range(9)] for _ in range(9)]
-    generatePuzzle(grid), remove(grid, difficultyInt)
+    generatePuzzle(grid)
+    solution = copy.deepcopy(grid)
+    remove(grid, difficultyInt)
+
     w, active, actions, timer, mGrid = 40, None, [[], []], TimePiece(), copy.deepcopy(grid)
     delete, backward, foward = Button("✕", (15, 480), (40, 40)), Button("←", (535, 480), (40, 40)), Button("→", (585, 480), (40, 40))
 
@@ -28,7 +31,7 @@ def Sudoku(difficultyStr, difficultyInt):
         mx, my = (mouse[0] - 20) // w - 3, mouse[1] // w - 2
 
         for event in pg.event.get():
-            if event.type == pg.QUIT:
+            if event.type == pg.QUIT or solution == grid:
                 return
 
             if event.type == pg.KEYDOWN and event.key in [pg.K_1, pg.K_2, pg.K_3, pg.K_4, pg.K_5, pg.K_6, pg.K_7, pg.K_8, pg.K_9]:
