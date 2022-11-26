@@ -1,226 +1,135 @@
-import pygame
-import time
+import pygame as pg
 import random
 import math
-import sys
-import os
-
-pygame.display.init(), pygame.font.init()
-
-clock = pygame.time.Clock()
-screen = pygame.display.set_mode((1280, 720))
+from Things import Colors, Fonts, centerPrint, AbstractButton, TimePiece
 
 
-def resource_path(relative_path):
-    if hasattr(sys, "_MEIPASS"):
-        return os.path.join(sys._MEIPASS, relative_path)
-    return os.path.join(os.path.abspath("."), relative_path)
-
-
-pygame.display.set_caption("Pong")
-
-font21 = pygame.font.Font(resource_path(resource_path("./Fonts/BIG JOHN.otf")), 21)
-font36 = pygame.font.Font(resource_path(resource_path("./Fonts/BIG JOHN.otf")), 36)
-font70 = pygame.font.Font(resource_path(resource_path("./Fonts/BIG JOHN.otf")), 70)
-white, gray, black = (255, 255, 255), (77, 77, 77), (25, 25, 25)
-blue, red = (0, 113, 188), (165, 2, 39)
-
-
-def centerprint(variable, x, y, sizeX, sizeY, color=gray, font=font36):
-    text = font.render(str(variable), True, color)
-    rect = pygame.Rect((x, y, sizeX, sizeY))
-    text_rect = text.get_rect()
-    text_rect.centerx = rect.centerx
-    text_rect.centery = rect.centery
-    screen.blit(text, text_rect)
-
-
-class Button:
-    def __init__(self, text, x, y, w, h, color):
-        self.t = text
-        self.x = x
-        self.y = y
-        self.w = w
-        self.h = h
-        self.c = color
-        self.rect = pygame.Rect((x, y), (w, h))
+class Button(AbstractButton):
+    def __init__(self, text, pos, size, color):
+        super().__init__(text, pos, size)
+        self.color = color
 
     def show(self, mouse):
-        if self.x + self.w > mouse[0] > self.x and self.y + self.h > mouse[1] > self.y:
-            pygame.draw.rect(screen, self.c, [self.x, self.y, self.w, self.h])
-        else:
-            pygame.draw.rect(screen, gray, [self.x, self.y, self.w, self.h])
-        centerprint(self.t, self.x, self.y + 2, self.w, self.h, black, font21)
-
-    def click(self, event):
-        if event.type == pygame.MOUSEBUTTONUP and event.button == 1:
-            return self.rect.collidepoint(event.pos)
+        pg.draw.rect(screen, self.color if self.under(mouse) else Colors["gray"], self.rect.topleft + self.rect.size)
+        centerPrint(screen, self.text, (self.rect.x, self.rect.y + 2), self.rect.size, Colors["black2"], Fonts["bigJohn21"])
 
 
-def map(value, start1, stop1, start2, stop2):
-    return start2 + (stop2 - start2) * ((value - start1) / (stop1 - start1))
-
-
-def Pong(AI):
-    largura, altura = 1280, 720
-    square = pygame.Rect(largura / 2 - 36.5, altura / 2 - 36.5, 75, 75)
-    top = pygame.Rect(0, 72, 1280, 1); bottom = pygame.Rect(0, 695, 1280, 1)
-
-    comp, user, winscore, start, count = 0, 0, 3, True, True
-    PRD, PRU, PLD, PLU = False, False, False, False
-    PaddleRight, PaddleLeft, xspeed, yspeed, x1, y1, r = None, None, 0, 0, 0, 0, 10
-    x, y, xspeed1, yspeed1, ball = 0, 0, 0, 0, None
+def Pong(singleplayer):
+    paddleLeft, paddleRight = pg.Rect(16, 172, 16, 136), pg.Rect(1248, 172, 16, 136)
+    topLimit, bottomLimit = pg.Rect(0, 72, 1280, 1), pg.Rect(0, 695, 1280, 1)
+    score, start, count, timer, r = [0, 0, 3], False, True, TimePiece(), 10
+    paddleDir, ballSpeed, ballSpeed2 = [0, 0], [0, 0], [0, 0]
+    x, y = x2, y2 = width / 2, height / 2
+    ball, ghostBall = pg.Rect(x, y, r * 2, r * 2), None
 
     while True:
-        mouse = pygame.mouse.get_pos()
+        mouse = pg.mouse.get_pos()
+        for event in pg.event.get():
+            if event.type == pg.QUIT:
+                return
 
-        # Start the Game
+            if not singleplayer:
+                if event.type == pg.KEYDOWN:
+                    for side, keys in enumerate([(pg.K_DOWN, pg.K_UP), (pg.K_s, pg.K_w)]):
+                        if event.key in keys:
+                            paddleDir[side] = -1 if event.key == keys[0] else 1
+                if event.type == pg.KEYUP:
+                    for side, keys in enumerate([(pg.K_DOWN, pg.K_UP), (pg.K_s, pg.K_w)]):
+                        if event.key in keys:
+                            dir = 1 if event.key == keys[0] else -1
+                            paddleDir[side] = 0 if paddleDir[side] != dir else dir
+
         if start:
-            x, y = largura / 2, altura / 2
-            x1, y1 = x, y
-            PaddleLeft = pygame.Rect(16, 172, 16, 136)
-            PaddleRight = pygame.Rect(1248, 172, 16, 136)
-            ball = pygame.Rect(x, y, r * 2, r * 2)
-            xspeed = 6 * math.cos(3.14 / 4)
-            yspeed = 6 * math.sin(3.14 / 4)
-            xspeed1, yspeed1 = xspeed, yspeed
-            if random.choice([1, 2]) == 1: xspeed *= -1; xspeed1 *= -1
+            x, y = x2, y2 = width / 2, height / 2
+            ballSpeed = ballSpeed2[:] = [6 * math.cos(math.pi / 4), 6 * math.sin(math.pi / 4)]
+            ballSpeed[0] = ballSpeed2[0] = ballSpeed[0] * (-1 if random.choice([1, 2]) == 1 else 1)
             start = False
 
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT: return False
-            # Keyboard Control
-            if not AI:
-                if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_DOWN: PRD = True
-                    if event.key == pygame.K_UP: PRU = True
-                    if event.key == pygame.K_s: PLD = True
-                    if event.key == pygame.K_w: PLU = True
-                if event.type == pygame.KEYUP:
-                    if event.key == pygame.K_DOWN: PRD = False
-                    if event.key == pygame.K_UP: PRU = False
-                    if event.key == pygame.K_s: PLD = False
-                    if event.key == pygame.K_w: PLU = False
+        if not singleplayer:
+            for side, paddle in enumerate([paddleRight, paddleLeft]):
+                if paddleDir[side] == -1 and paddle.y + paddle.h < 693:
+                    paddle.y += 7
+                elif paddleDir[side] == 1 and paddle.y > 75:
+                    paddle.y -= 7
+        elif paddleRight.y <= 72 and mouse[1] - paddleRight.height / 2 <= 72:
+            paddleRight.y = 72
+        elif (paddleRight.y + paddleRight.height) >= 695 and mouse[1] + paddleRight.height / 2 >= 695:
+            paddleRight.y = 695 - paddleRight.height
+        else:
+            paddleRight.centery = mouse[1]
 
-        if not AI:
-            if PRD and (PaddleRight.y + PaddleRight.h) < 695: PaddleRight.y += 7
-            if PRU and PaddleRight.y > 72: PaddleRight.y -= 7
-            if PLD and (PaddleLeft.y + PaddleLeft.h) < 695: PaddleLeft.y += 7
-            if PLU and PaddleLeft.y > 72: PaddleLeft.y -= 7
+        if ballSpeed[0] < 0 and singleplayer:
+            ghostBall = pg.Rect(x2, y2, r * 2, r * 2)
+            x2, y2 = x2 + ballSpeed2[0] * 1.25, y2 + ballSpeed2[1] * 1.25
+            if ghostBall.x > paddleLeft.x:
+                if paddleLeft.y <= 72 and ghostBall.y < 72 + paddleLeft.height / 2:
+                    paddleLeft.y = 72 + 2
+                elif paddleLeft.centery < ghostBall.centery:
+                    paddleLeft.centery += 2
+                if paddleLeft.y + paddleRight.height >= 695 - 2 and ghostBall.y > 695 - paddleLeft.height / 2:
+                    paddleLeft.y = 695 - paddleLeft.height
+                elif paddleLeft.centery > ghostBall.centery:
+                    paddleLeft.centery -= 2
 
-        # A.I.
-        if AI and xspeed < 0:
-            ball2 = pygame.Rect(x1, y1, r * 2, r * 2)
-            x1 += xspeed1 * 1.25
-            y1 += yspeed1 * 1.25
-            if PaddleLeft.y <= 72 and ball2.y < 72 + PaddleLeft.height / 2:
-                PaddleLeft.y = 72 + 2
-            elif PaddleLeft.centery < ball2.centery:
-                PaddleLeft.centery += 2
-            if PaddleLeft.y + PaddleRight.height >= 695 - 2 and ball2.y > 695 - PaddleLeft.height / 2:
-                PaddleLeft.y = 695 - PaddleLeft.height
-            elif PaddleLeft.centery > ball2.centery:
-                PaddleLeft.centery -= 2
+        for side, paddle in enumerate([paddleRight, paddleLeft]):
+            if paddle.colliderect(ball):
+                ballSpeed = ballSpeed2[:] = [ballSpeed[0] * -1, ballSpeed[1]]
+                x = (paddle.x - paddle.width - r) if side == 0 else (paddle.x + paddle.width + r)
+                x2, y2 = x, y
 
-        # Mouse Control
-        if AI:
-            if PaddleRight.y <= 72 and mouse[1] - PaddleRight.height / 2 <= 72:
-                PaddleRight.y = 72
-            elif (PaddleRight.y + PaddleRight.height) >= 695 and mouse[1] + PaddleRight.height / 2 >= 695:
-                PaddleRight.y = 695 - PaddleRight.height
-            else:
-                PaddleRight.centery = mouse[1]
+        if topLimit.colliderect(ball) or bottomLimit.colliderect(ball):
+            ballSpeed[1] *= -1
+        if y2 < 77 or y2 > height - 38:
+            ballSpeed2[1] *= -1
 
-        # Right Paddle Ball Collision
-        if PaddleRight.colliderect(ball):
-            diff = y - ((PaddleRight.top + 72) - PaddleRight.height / 2)
-            angle = map(diff, 0, PaddleRight.height, math.radians(225), math.radians(135))
-            xspeed = 6 * math.cos(angle)
-            yspeed = 6 * math.sin(angle)
-            x = PaddleRight.x - PaddleRight.width - r
-            x1, y1, xspeed1, yspeed1 = x, y, xspeed, yspeed
+        if (playerWon := score[0] == score[2]) or score[1] == score[2]:
+            return playerWon
 
-        # Left Paddle Ball Collision
-        if PaddleLeft.colliderect(ball):
-            diff = y - ((PaddleLeft.top + 72) - PaddleLeft.height / 2)
-            angle = map(diff, 0, PaddleLeft.height, math.radians(-45), math.radians(45))
-            xspeed = 6 * math.cos(angle)
-            yspeed = 6 * math.sin(angle)
-            x = PaddleLeft.x + PaddleLeft.width + r
+        ball.x, ball.y = x, y = x + ballSpeed[0], y + ballSpeed[1]
+        screen.fill(Colors["black2"])
 
-        # Freezes A.I. ball
-        if x1 < 0: xspeed1, yspeed1 = 0, 0
+        pg.draw.rect(screen, Colors["red"], paddleLeft)
+        pg.draw.rect(screen, Colors["blue"], paddleRight)
+        pg.draw.circle(screen, Colors["lightgray"], (ball.x + r, ball.y + r), r)
+        pg.draw.rect(screen, Colors["gray"], topLimit), pg.draw.rect(screen, Colors["gray"], bottomLimit)
+        centerPrint(screen, score[1], (640-110, 15), (50, 60), Colors["red"], Fonts["bigJohn70"])
+        centerPrint(screen, score[0], (640+110-30, 15), (50, 60), Colors["blue"], Fonts["bigJohn70"])
+        centerPrint(screen, f"{score[2]}{' ' * 30}{score[2]}", (640, 23), (20, 34), Colors["gray"], Fonts["bigJohn21"])
 
-        # Reverse Y (top and bottom limits)
-        if y < 77 or y > altura - 38: yspeed *= -1
-        if y1 < 77 or y1 > altura - 38: yspeed1 *= -1
-
-        # Resets Game
-        if x > largura - r * 2 or x < 0:
-            if x > largura - r * 2:
-                comp += 1
-            else:
-                user += 1
-
-            # End
-            if user == winscore: return True
-            elif comp == winscore: return False
-
+        if count and timer.seconds <= 3:
+            if timer.seconds == 3:
+                timer.reset()
+                start, count = True, False
+            pg.draw.rect(screen, Colors["black2"], pg.Rect(width / 2 - 36.5, height / 2 - 36.5, 75, 75))
+            centerPrint(screen, str(3 - timer.seconds), (width/2 - 36.5, height/2 - 36.5), (75, 75), Colors["gray"], Fonts["bigJohn70"])
+        elif not count and ball.x < 0 or ball.x > width:
+            score[0 if ball.x < 0 else 1] += 1
             count = True
 
-        ball = pygame.Rect(x, y, r * 2, r * 2)
-        x += xspeed
-        y += yspeed
-
-        # Draw Everything to Screen
-        screen.fill(black)
-
-        pygame.draw.rect(screen, red, PaddleLeft)
-        pygame.draw.rect(screen, blue, PaddleRight)
-        pygame.draw.circle(screen, (204, 204, 204), (ball.x + 10, ball.y + 10), 10)
-        pygame.draw.rect(screen, gray, top), pygame.draw.rect(screen, gray, bottom)
-        centerprint(comp, 536, 15, 50, 60, red, font70), centerprint(user, 696, 15, 50, 60, blue, font70)
-        centerprint(winscore, 495, 23, 20, 34), centerprint(winscore, 765, 23, 20, 34)
-
-        if count:
-            startTime = time.time()
-            while True:
-
-                for event in pygame.event.get():
-                    if event.type == pygame.QUIT: return False
-
-                # Countdown
-                seconds = round(int(time.time() - startTime))
-                if seconds < 3:
-                    pygame.draw.rect(screen, black, square)
-                    centerprint(3 - seconds, largura / 2 - 36.5, altura / 2 - 36.5, 75, 75, font=font70)
-                if seconds == 3:
-                    start = True; break
-
-                pygame.display.update(); clock.tick(120)
-            count = False
-
-        pygame.display.update(); clock.tick(120)
+        timer.update(count), pg.display.update(), pg.time.Clock().tick(120)
 
 
 def Menu():
-    Singleplayer = Button("Singleplayer", 430, 390, 200, 40, blue)
-    Multiplayer = Button("Multiplayer", 650, 390, 200, 40, red)
+    Singleplayer = Button("Singleplayer", (430, 390), (200, 40), Colors["blue"])
+    Multiplayer = Button("Multiplayer", (650, 390), (200, 40), Colors["red"])
+
     while True:
-        mouse = pygame.mouse.get_pos()
+        mouse = pg.mouse.get_pos()
+        for event in pg.event.get():
+            if event.type == pg.QUIT:
+                return
 
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT: sys.exit()
+            if (singleplayer := Singleplayer.click(event)) or Multiplayer.click(event):
+                Pong(singleplayer)
 
-            if Singleplayer.click(event): Pong(True)
-            if Multiplayer.click(event): Pong(False)
+        screen.fill(Colors["black2"])
+        centerPrint(screen, "Pong", (340, 100), (600, 100), Colors["gray"], Fonts["bigJohn70"])
 
-        screen.fill(black)
-        centerprint("Pong", 340, 100, 600, 100, font=font70)
-
-        Singleplayer.show(mouse), Multiplayer.show(mouse)
-
-        pygame.display.update(); clock.tick(15)
+        Singleplayer.show(mouse), Multiplayer.show(mouse), pg.display.update(), pg.time.Clock().tick(25)
 
 
-if __name__ == "__main__": Menu()
+if __name__ == "__main__":
+    screen = pg.display.set_mode((1280, 720))
+    width, height = screen.get_size()
+    pg.display.set_caption("Pong")
+    Menu()
