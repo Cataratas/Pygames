@@ -85,7 +85,7 @@ class AbstractButton:
 def isImageLoaded(f):
     def helper(screen, path, *args):
         if path not in images:
-            images.update({path: pygame.image.load(resource_path(path))})
+            images.update({path: pygame.image.load(resource_path(path)).convert_alpha()})
         return f(screen, path, *args)
     return helper
 
@@ -95,7 +95,7 @@ def draw(screen, path, pos, mirror=False):
     if mirror:
         screen.blit(pygame.transform.flip(images[path], True, False), pos)
     else:
-        screen.blit(images[path].convert_alpha(), pos)
+        screen.blit(images[path], pos)
 
 
 def centerPrint(screen, variable, pos, size, color=Colors["black"], font=Fonts["demiBold21"]):
