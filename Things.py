@@ -5,6 +5,7 @@ import pygame.freetype
 import time
 
 pygame.font.init(), pygame.freetype.init()
+images = {}
 
 
 def resource_path(relative_path):
@@ -81,11 +82,20 @@ class AbstractButton:
             return self.rect.collidepoint(event.pos)
 
 
+def isImageLoaded(f):
+    def helper(screen, path, *args):
+        if path not in images:
+            images.update({path: pygame.image.load(resource_path(path))})
+        return f(screen, path, *args)
+    return helper
+
+
+@isImageLoaded
 def draw(screen, path, pos, mirror=False):
     if mirror:
-        screen.blit(pygame.transform.flip(pygame.image.load(resource_path(path)), True, False), pos)
+        screen.blit(pygame.transform.flip(images[path], True, False), pos)
     else:
-        screen.blit(pygame.image.load(resource_path(path)).convert_alpha(), pos)
+        screen.blit(images[path].convert_alpha(), pos)
 
 
 def centerPrint(screen, variable, pos, size, color=Colors["black"], font=Fonts["demiBold21"]):
