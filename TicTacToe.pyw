@@ -11,9 +11,9 @@ class Button(AbstractButton):
 
     def show(self, mouse, enabled=True, player=None):
         if self.under(mouse) and enabled:
-            draw(screen, f"Assets/{self.type} 2{'' if player is None else 'Blue' if player else 'Red'}.png", self.rect.topleft)
+            draw(screen, f"assets/{self.type} 2{'' if player is None else 'Blue' if player else 'Red'}.png", self.rect.topleft)
         else:
-            draw(screen, f"Assets/{self.type}.png", self.rect.topleft)
+            draw(screen, f"assets/{self.type}.png", self.rect.topleft)
         centerPrint(screen, self.text, (self.rect.x, self.rect.y - 1), self.rect.size, Colors["lightgray"])
 
 
@@ -39,7 +39,7 @@ class Board:
         for i, j in itertools.product(range(3), range(3)):
             self[i][j].button.show(mouse, self[i][j].value is None, player=self.active == "x")
             if self[i][j].value is not None:
-                draw(screen, f"Assets/{self[i][j].value}.png", (150 + 129 * i, 197 + 129 * j))
+                draw(screen, f"assets/{self[i][j].value}.png", (150 + 129 * i, 197 + 129 * j))
 
     def check(self):
         if (v := self[0][0]) == self[1][1] == self[2][2] or (v := self[0][2]) == self[1][1] == self[2][0] or \
@@ -95,12 +95,12 @@ def TicTacToe(singleplayer):
 
         screen.fill(Colors["white"])
         for i in range(winningScore):
-            draw(screen, "Assets/BlackCircle.png", (100 + 38 * i, 47))
-            draw(screen, "Assets/BlackCircle.png", (440 + 38 * i, 47))
+            draw(screen, "assets/images/BlackCircle.png", (100 + 38 * i, 47))
+            draw(screen, "assets/images/BlackCircle.png", (440 + 38 * i, 47))
         for i in range(score[0]):
-            draw(screen, "Assets/BlueCircle.png", (100 + 38 * i, 47))
+            draw(screen, "assets/images/BlueCircle.png", (100 + 38 * i, 47))
         for i in range(score[1]):
-            draw(screen, "Assets/RedCircle.png", (440 + 38 * i, 47))
+            draw(screen, "assets/images/RedCircle.png", (440 + 38 * i, 47))
 
         board.show(mouse), pygame.display.update(), pygame.time.Clock().tick(25)
 

@@ -47,8 +47,8 @@ def Maze():
             return True
 
         screen.fill(Colors["black2"])
-        [draw(screen, "Assets/Key.png", ((29 + w * key[0]) + 5, (64 + w * key[1]) + 2)) for key in keys]
-        draw(screen, f"Assets/Door{'' if totalKeys == 3 else ' 0'}.png", ((29 + w * door[0]) + 6, (64 + w * door[1]) + 2))
+        [draw(screen, "assets/images/Key.png", ((29 + w * key[0]) + 5, (64 + w * key[1]) + 2)) for key in keys]
+        draw(screen, f"assets/Door{'' if totalKeys == 3 else ' 0'}.png", ((29 + w * door[0]) + 6, (64 + w * door[1]) + 2))
 
         if tuple(player) in keys:
             totalKeys += 1
@@ -64,9 +64,9 @@ def Maze():
                 if i == 0 or i == columns - 1 or j == 0 or j == rows - 1:
                     pg.draw.rect(screen, Colors["red"], [29 + w * i, 64 + w * j, w - 3, w - 3])
 
-        [draw(screen, "Assets/Key 0.png", (591 + 35 * i, 18)) for i in range(3)]
-        [draw(screen, "Assets/Key.png", (591 + 35 * i, 18)) for i in range(totalKeys)]
-        draw(screen, "Assets/Player.png", ((29 + w * player[0]) + 8, (64 + w * player[1]) + 4), side)
+        [draw(screen, "assets/images/Key 0.png", (591 + 35 * i, 18)) for i in range(3)]
+        [draw(screen, "assets/images/Key.png", (591 + 35 * i, 18)) for i in range(totalKeys)]
+        draw(screen, "assets/images/Player.png", ((29 + w * player[0]) + 8, (64 + w * player[1]) + 4), side)
 
         pg.display.update(), pg.time.Clock().tick(12)
 

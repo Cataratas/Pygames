@@ -59,7 +59,7 @@ def Memory():
         timer.update(), pygame.display.update(), pygame.time.Clock().tick(30)
 
 
-symbols = json.load(open("Assets/symbols.json"))
+symbols = json.load(open("assets/data/symbols.json"))
 if __name__ == "__main__":
     screen = pygame.display.set_mode((1280, 720))
     pygame.display.set_caption("Memory")

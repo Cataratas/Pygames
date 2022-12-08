@@ -1,7 +1,7 @@
 import copy
 import pygame as pg
 import itertools
-from Assets.sudokuAssets import generatePuzzle, remove, printMenu
+from assets.sudokuAssets import generatePuzzle, remove, printMenu
 from Things import Colors, Fonts, centerPrint, AbstractButton, TimePiece
 
 
@@ -82,8 +82,8 @@ def Sudoku(difficultyStr, difficultyInt):
 
 
 def Menu():
-    buttons = [Button(text, (50 + 190 * i, 400), (160, 40)) for i, text in enumerate(["Fácil", "Médio", "Difícil"])]
-    printGame = Button("Imprimir", (240, 455), (160, 30))
+    buttons = [Button(text, (50 + 190 * i, 400), (160, 36)) for i, text in enumerate(["Fácil", "Médio", "Difícil"])]
+    printGame = Button("Imprimir", (240, 455), (160, 36))
 
     while True:
         pg.display.set_caption("Sudoku")

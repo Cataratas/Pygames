@@ -3,40 +3,34 @@ import os
 import pygame
 import pygame.freetype
 import time
+import json
 
 pygame.font.init(), pygame.freetype.init()
-images = {}
 
 
 def resource_path(relative_path):
     if hasattr(sys, '_MEIPASS'):
         return os.path.join(sys._MEIPASS, relative_path)
-    return os.path.join(os.path.abspath("."), relative_path)
+    return os.path.join(os.path.abspath(""), relative_path)
 
+
+images = {}
+with open(resource_path("assets/data/colors.json"), "r") as file:
+    Colors = json.load(file)
 
 Fonts = {
-    "myriad21": pygame.font.Font(resource_path("./Fonts/myriad-pro-8.otf"), 21),
-    "myriad40": pygame.font.Font(resource_path("./Fonts/myriad-pro-8.otf"), 40),
-    "myriad36": pygame.font.Font(resource_path("./Fonts/myriad-pro-8.otf"), 36),
-    "bigJohn21": pygame.font.Font(resource_path("./Fonts/BIG JOHN.otf"), 21),
-    "bigJohn36": pygame.font.Font(resource_path("./Fonts/BIG JOHN.otf"), 36),
-    "bigJohn70": pygame.font.Font(resource_path("./Fonts/BIG JOHN.otf"), 70),
-    "demiBold21": pygame.font.Font(resource_path("./Fonts/berlin-sans-fb-demi-bold.ttf"), 21),
-    "demiBold80": pygame.font.Font(resource_path("./Fonts/berlin-sans-fb-demi-bold.ttf"), 80),
-    "seguiEmj50": pygame.freetype.Font(resource_path("./Fonts/seguiemj.ttf"), 50),
-    "seguisym18": pygame.font.Font(resource_path("./Fonts/seguisym.ttf"), 18),
-    "seguisym21": pygame.font.Font(resource_path("./Fonts/seguisym.ttf"), 21),
-    "seguisym81": pygame.font.Font(resource_path("./Fonts/seguisym.ttf"), 81),
-}
-
-Colors = {
-    "black": (0, 0, 0), "black2": (25, 25, 25),
-    "darkgreen": (0, 175, 69), "green": (0, 146, 69), "lightgreen": (72, 181, 89),
-    "darkred": (141, 39, 45), "red": (193, 39, 45), "lightred": (254, 92, 92), "lightcoral": (254, 132, 132),
-    "orange": (247, 107, 30), "lightorange": (247, 127, 45),
-    "darkblue": (0, 75, 188), "blue": (0, 113, 188),
-    "darkgray": (51, 51, 51), "gray": (70, 70, 70), "lightgray": (138, 138, 138), "lightgray2": (153, 153, 153),
-    "lightgray4": (214, 214, 214), "lightgray3": (230, 230, 230), "white": (255, 255, 255),
+    "myriad21": pygame.font.Font(resource_path("assets/fonts/myriad-pro-8.otf"), 21),
+    "myriad40": pygame.font.Font(resource_path("assets/fonts/myriad-pro-8.otf"), 40),
+    "myriad36": pygame.font.Font(resource_path("assets/fonts/myriad-pro-8.otf"), 36),
+    "bigJohn21": pygame.font.Font(resource_path("assets/fonts/BIG JOHN.otf"), 21),
+    "bigJohn36": pygame.font.Font(resource_path("assets/fonts/BIG JOHN.otf"), 36),
+    "bigJohn70": pygame.font.Font(resource_path("assets/fonts/BIG JOHN.otf"), 70),
+    "demiBold21": pygame.font.Font(resource_path("assets/fonts/berlin-sans-fb-demi-bold.ttf"), 21),
+    "demiBold80": pygame.font.Font(resource_path("assets/fonts/berlin-sans-fb-demi-bold.ttf"), 80),
+    "seguiEmj50": pygame.freetype.Font(resource_path("assets/fonts/seguiemj.ttf"), 50),
+    "seguisym18": pygame.font.Font(resource_path("assets/fonts/seguisym.ttf"), 18),
+    "seguisym21": pygame.font.Font(resource_path("assets/fonts/seguisym.ttf"), 21),
+    "seguisym81": pygame.font.Font(resource_path("assets/fonts/seguisym.ttf"), 81),
 }
 
 
@@ -100,9 +94,8 @@ def draw(screen, path, pos, mirror=False):
 
 def centerPrint(screen, variable, pos, size, color=Colors["black"], font=Fonts["demiBold21"]):
     text = font.render(str(variable), True, color)
-    rect = pygame.Rect(pos + size)
     text_rect = text.get_rect()
-    text_rect.center = rect.center
+    text_rect.center = pygame.Rect(pos + size).center
     screen.blit(text, text_rect)
 
 

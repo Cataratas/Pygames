@@ -22,8 +22,8 @@ while True:
             keyboard, start = False, False
 
     screen.fill(Colors["black2"])
-    draw(screen, "Assets/Snake Food.png", (food[0] * w, food[1] * w))
-    [draw(screen, f"Assets/Snake {'Body' if i != 0 else 'Head'}.png", (body[0] * w, body[1] * w)) for i, body in enumerate(snake)]
+    draw(screen, "assets/images/Snake Food.png", (food[0] * w, food[1] * w))
+    [draw(screen, f"assets/images/Snake {'Body' if i != 0 else 'Head'}.png", (body[0] * w, body[1] * w)) for i, body in enumerate(snake)]
 
     if food == snake[0]:
         snake.append(snake[-1])
