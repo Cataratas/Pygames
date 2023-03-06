@@ -8,10 +8,10 @@ startPos = (columns // 2, rows // 2)
 snake, food = [startPos, (startPos[0] + 1, startPos[1])], (random.randint(0, columns - 1), random.randint(0, rows - 1))
 
 while True:
-    for i, event in enumerate(pg.event.get((pg.KEYDOWN, pg.QUIT))):
+    for event in pg.event.get((pg.KEYDOWN, pg.QUIT)):
         if event.type == pg.QUIT:
             exit()
-        if i == 0 and event.key in [pg.K_DOWN, pg.K_s, pg.K_UP, pg.K_w, pg.K_RIGHT, pg.K_d, pg.K_LEFT, pg.K_a]:
+        if event.key in [pg.K_DOWN, pg.K_s, pg.K_UP, pg.K_w, pg.K_RIGHT, pg.K_d, pg.K_LEFT, pg.K_a]:
             for key, dir in [((pg.K_DOWN, pg.K_s), (0, 1)), ((pg.K_UP, pg.K_w), (0, -1)), ((pg.K_RIGHT, pg.K_d), (1, 0)), ((pg.K_LEFT, pg.K_a), (-1, 0))]:
                 if event.key in key and (direction != tuple(x * -1 for x in dir) or not alive):
                     direction = dir
