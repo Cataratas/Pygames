@@ -3,7 +3,6 @@ import random
 from Things import Colors, Fonts, draw, centerPrint
 
 screen = pg.display.set_mode((1276, 704))
-pg.display.set_caption("Snake")
 rows, columns, w, start, direction, alive = 32, 58, 22, True, (0, 0), True
 startPos = (columns // 2, rows // 2)
 snake, food = [startPos, (startPos[0] + 1, startPos[1])], (random.randint(0, columns - 1), random.randint(0, rows - 1))
@@ -20,7 +19,8 @@ while True:
                 snake = [startPos, (startPos[0] + 1, startPos[1])]
             start = False
 
-    screen.fill(Colors["black2"])
+    screen.fill(Colors["black3"])
+    pg.display.set_caption(f"Snake | Score: {len(snake[2:])}")
     draw(screen, "assets/images/Snake Food.png", (food[0] * w, food[1] * w))
     [draw(screen, f"assets/images/Snake {'Body' if i != 0 else 'Head'}.png", (body[0] * w, body[1] * w)) for i, body in enumerate(snake)]
 
